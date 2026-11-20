@@ -114,7 +114,7 @@ Ruft Claude mit Ziel, Erfahrung, Equipment, Trainingstagen, Muskelrängen und Ü
 Tool-Schema, Prüfung mit zod plus Prüfung auf erlaubte Übungen und Wochentage, eine Korrekturrunde.
 Startgewichte aus vorhandenen Bestwerten. Neu generierbar nach 28 Tagen (`409 plan_locked`).
 
-**`league-weekly`** – nur pg_cron (Header `x-cron-secret`).
+**`league-weekly`** – nur pg_cron (Header `x-cron-secret`, geprüft gegen den Vault).
 
 **Progressive Overload** (`core/progression.ts`): alle Sätze am oberen Wdh.-Ende → +2,5 kg (Oberkörper) bzw. +5 kg
 (Unterkörper); die Hälfte der Sätze unter dem Bereich → −5 %; sonst Gewicht halten. Wird nach jedem Plan-Workout
@@ -128,7 +128,7 @@ in `plan_exercises` geschrieben.
 | XP, Level, Streak, Abzeichen | 15 |
 | Liga (Auswertung, Gruppen, Berliner Woche inkl. Sommerzeit) | 10 |
 | Progressive Overload | 8 |
-| RLS / Rechte (SQL gegen Postgres 16) | 28 |
+| RLS / Rechte (SQL gegen Postgres 16) | 30 |
 
 `npm test` läuft, sobald in Phase 3 das Expo-Projekt mit `jest-expo` eingerichtet ist.
 
@@ -136,4 +136,18 @@ in `plan_exercises` geschrieben.
 
 - Vollständiger Übungskatalog (≥ 80) mit Normen – `standards.ts` erweitern, dann `npm run seed:generate`.
 - Demo-Nutzer für die Bestenlisten.
-- Edge Functions sind typgeprüft, aber noch nicht gegen ein echtes Supabase-Projekt gelaufen.
+
+
+## Live-Projekt (Stand 20.11.2026)
+
+- Supabase-Projekt **ascend** (`txcjjbmbctfmffozvbrz`, Region EU), URL `https://txcjjbmbctfmffozvbrz.supabase.co`.
+- Migrationen `…0001_init`, `…0002_cron`, `…0003_hardening` und `seed.sql` sind eingespielt.
+- Edge Functions deployt: `finish-workout`, `league-weekly` (ohne JWT, prüft `x-cron-secret` gegen den Vault), `generate-plan`.
+  Deployt wurden je eine Datei mit eingebettetem `_shared`-Code – inhaltlich identisch mit dem Quellcode hier.
+  Mit der CLI später einfach `supabase functions deploy <name>`.
+- Vault-Secrets: `project_url`, `cron_secret` (für pg_cron → league-weekly).
+- Edge-Function-Secret `ANTHROPIC_API_KEY` muss im Dashboard gesetzt sein, sonst antwortet `generate-plan` mit 500 `config`.
+- End-to-End geprüft: erstes Workout → Ränge + 126 XP + 8 Abzeichen; doppelter Abschluss → 409; PR + 2 Rang-Aufstiege → 704 XP
+  (Streak ×1,05); ohne Login → 401; league-weekly mit richtigem/falschem Secret → 200/401. Testnutzer danach gelöscht.
+- Security Advisor: übrig sind nur bewusst offene RPCs (`username_available` für anon, Lese-RPCs für Eingeloggte) und
+  „Leaked Password Protection“ (Dashboard → Auth → Passwörter, nur in bezahlten Plänen).

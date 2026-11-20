@@ -7,10 +7,12 @@ import { closeGroup, formGroups, isWeekCloseTime, LEAGUE_NAMES, weekStart, type 
 import { addDays } from '../_shared/core/streak.ts';
 
 Deno.serve(handler(async (req) => {
-  const secret = Deno.env.get('CRON_SECRET');
-  if (!secret || req.headers.get('x-cron-secret') !== secret) throw new HttpError(401, 'unauthorized');
-
+  // Der Cron-Secret liegt im Vault der Datenbank und wird dort geprüft.
   const db = serviceClient();
+  const provided = req.headers.get('x-cron-secret') ?? '';
+  const ok = provided ? must(await db.rpc('verify_cron_secret', { p_secret: provided }), 'cron secret') as boolean : false;
+  if (!ok) throw new HttpError(401, 'unauthorized');
+
   const now = new Date();
   const current = weekStart(now);
   // Sonntag ab 23:59 wird die laufende Woche geschlossen, sonst nur vergangene, offene Wochen.
