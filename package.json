@@ -1,0 +1,13 @@
+{
+  "name": "ascend",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "test": "jest",
+    "typecheck": "tsc -p tsconfig.json",
+    "seed:generate": "node --experimental-strip-types scripts/generate-seed.ts"
+  },
+  "jest": {
+    "testMatch": ["**/__tests__/**/*.test.ts"]
+  }
+}

@@ -1,0 +1,16 @@
+# Ausschnitt der Supabase-CLI-Konfiguration (wird von `supabase init` ergänzt).
+project_id = "ascend"
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[functions.finish-workout]
+verify_jwt = true
+
+[functions.generate-plan]
+verify_jwt = true
+
+# Wird von pg_cron aufgerufen und prüft stattdessen den Header x-cron-secret.
+[functions.league-weekly]
+verify_jwt = false
