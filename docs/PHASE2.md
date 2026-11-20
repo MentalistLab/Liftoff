@@ -146,7 +146,7 @@ in `plan_exercises` geschrieben.
   Deployt wurden je eine Datei mit eingebettetem `_shared`-Code – inhaltlich identisch mit dem Quellcode hier.
   Mit der CLI später einfach `supabase functions deploy <name>`.
 - Vault-Secrets: `project_url`, `cron_secret` (für pg_cron → league-weekly).
-- Edge-Function-Secret `ANTHROPIC_API_KEY` muss im Dashboard gesetzt sein, sonst antwortet `generate-plan` mit 500 `config`.
+- `generate-plan` nutzt standardmäßig den **kostenlosen Regel-Generator** (`_shared/core/planner.ts`, 10 Tests). Nur wenn das Secret `ANTHROPIC_API_KEY` gesetzt ist, wird Claude gefragt – bei Fehlern automatisch zurück auf die Regeln. Live getestet: 200, `generator: rules`.
 - End-to-End geprüft: erstes Workout → Ränge + 126 XP + 8 Abzeichen; doppelter Abschluss → 409; PR + 2 Rang-Aufstiege → 704 XP
   (Streak ×1,05); ohne Login → 401; league-weekly mit richtigem/falschem Secret → 200/401. Testnutzer danach gelöscht.
 - Security Advisor: übrig sind nur bewusst offene RPCs (`username_available` für anon, Lese-RPCs für Eingeloggte) und

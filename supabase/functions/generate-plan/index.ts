@@ -1,6 +1,9 @@
-// generate-plan: erstellt mit Claude einen Wochenplan aus Ziel, Erfahrung, Equipment,
-// Trainingstagen und den aktuellen Rängen. Der API-Key liegt nur als Supabase-Secret
-// (ANTHROPIC_API_KEY) auf dem Server. Die Antwort wird mit zod geprüft.
+// generate-plan: erstellt einen Wochenplan aus Ziel, Erfahrung, Equipment, Trainingstagen
+// und den aktuellen Rängen.
+//  * Standard (kostenlos): regelbasierter Generator aus _shared/core/planner.ts.
+//  * Optional: Ist das Secret ANTHROPIC_API_KEY gesetzt, wird Claude gefragt. Klappt das nicht,
+//    wird automatisch auf die Regeln zurückgefallen – der Nutzer bekommt immer einen Plan.
+// Jeder Plan wird mit zod geprüft, bevor er gespeichert wird.
 
 import { z } from 'npm:zod@3.23.8';
 import { handler, HttpError, json, must, requireUser, serviceClient } from '../_shared/http.ts';
@@ -8,6 +11,7 @@ import { startingWeight } from '../_shared/core/progression.ts';
 import { localDate, addDays } from '../_shared/core/streak.ts';
 import { MUSCLE_NAMES, type Muscle } from '../_shared/core/standards.ts';
 import { rankLabel, scoreToRank } from '../_shared/core/ranking.ts';
+import { generatePlan, type Experience, type Goal } from '../_shared/core/planner.ts';
 
 const Body = z.object({ force: z.boolean().optional() });
 
@@ -85,8 +89,7 @@ const EXP_DE: Record<string, string> = { beginner: 'Anfänger', intermediate: 'F
 const DAY_DE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
 async function askClaude(system: string, user: string): Promise<unknown> {
-  const key = Deno.env.get('ANTHROPIC_API_KEY');
-  if (!key) throw new HttpError(500, 'config', 'ANTHROPIC_API_KEY fehlt');
+  const key = Deno.env.get('ANTHROPIC_API_KEY')!;
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
@@ -117,33 +120,13 @@ function checkPlan(plan: Plan, allowed: Set<string>, days: number[]): string[] {
   return errors;
 }
 
-Deno.serve(handler(async (req) => {
-  const user = await requireUser(req);
-  const body = Body.parse(await req.json().catch(() => ({})));
-  const db = serviceClient();
+type Ex = { id: string; slug: string; name_de: string; primary_muscle: Muscle; secondary_muscles: Muscle[]; equipment: string; ranking_type: string };
 
-  const profile = must(await db.from('profiles').select('gender, birth_year, bodyweight_kg, experience, goal, location, training_days, timezone, language').eq('id', user.id).single(), 'profile') as Record<string, unknown>;
-  const today = localDate(new Date(), (profile.timezone as string) || 'Europe/Berlin');
-
-  // Alle 4 Wochen neu generierbar
-  const active = must(await db.from('training_plans').select('id, valid_until').eq('user_id', user.id).eq('is_active', true).eq('source', 'ai'), 'active plan') as { id: string; valid_until: string | null }[];
-  if (active[0]?.valid_until && active[0].valid_until > today && !body.force) {
-    throw new HttpError(409, 'plan_locked', `Neuer Plan ab ${active[0].valid_until} möglich.`);
-  }
-
-  const days = ((profile.training_days as number[]) ?? [1, 3, 5]).slice().sort();
-  const equipment = EQUIPMENT_BY_LOCATION[(profile.location as string) ?? 'gym'] ?? EQUIPMENT_BY_LOCATION.gym;
-  const exercises = must(await db.from('exercises').select('id, slug, name_de, primary_muscle, secondary_muscles, equipment, ranking_type').in('equipment', equipment), 'exercises') as
-    { id: string; slug: string; name_de: string; primary_muscle: Muscle; secondary_muscles: Muscle[]; equipment: string; ranking_type: string }[];
-  if (exercises.length < 3) throw new HttpError(500, 'no_exercises', 'Übungskatalog ist leer – seed.sql ausführen.');
-  const bySlug = new Map(exercises.map((e) => [e.slug, e]));
-
-  const muscles = must(await db.from('muscle_ranks').select('muscle, score').eq('user_id', user.id), 'muscle ranks') as { muscle: Muscle; score: number }[];
-  const prs = new Map((must(await db.from('personal_records').select('exercise_id, best_1rm').eq('user_id', user.id), 'prs') as { exercise_id: string; best_1rm: number | null }[]).map((p) => [p.exercise_id, p.best_1rm]));
-
+/** Optionaler KI-Weg. Gibt null zurück, wenn auch nach einer Korrekturrunde kein gültiger Plan kam. */
+async function claudePlan(profile: Record<string, unknown>, days: number[], exercises: Ex[], muscles: { muscle: Muscle; score: number }[], allowed: Set<string>): Promise<Plan | null> {
   const age = profile.birth_year ? new Date().getUTCFullYear() - Number(profile.birth_year) : null;
   const rankText = muscles.length
-    ? muscles.sort((a, b) => a.score - b.score).map((m) => `${MUSCLE_NAMES[m.muscle].de}: ${rankLabel(scoreToRank(Number(m.score)))} (${m.score})`).join(', ')
+    ? [...muscles].sort((a, b) => a.score - b.score).map((m) => `${MUSCLE_NAMES[m.muscle].de}: ${rankLabel(scoreToRank(Number(m.score)))} (${m.score})`).join(', ')
     : 'noch keine Ränge';
 
   const system = [
@@ -171,24 +154,67 @@ Deno.serve(handler(async (req) => {
     ...exercises.map((e) => `${e.slug} | ${e.name_de} | ${e.primary_muscle} | ${e.equipment}`),
   ].join('\n');
 
-  // Anfrage + eine Korrekturrunde, falls die Antwort nicht passt
-  let plan: Plan | null = null;
   let feedback = '';
-  for (let attempt = 0; attempt < 2 && !plan; attempt++) {
+  for (let attempt = 0; attempt < 2; attempt++) {
     const raw = await askClaude(system, feedback ? `${userMsg}\n\nDein letzter Plan war ungültig:\n${feedback}\nBitte korrigieren.` : userMsg);
     const parsed = PlanSchema.safeParse(raw);
     if (!parsed.success) { feedback = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('\n'); continue; }
-    const errors = checkPlan(parsed.data, new Set(bySlug.keys()), days);
+    const errors = checkPlan(parsed.data, allowed, days);
     if (errors.length) { feedback = errors.join('\n'); continue; }
-    plan = parsed.data;
+    return parsed.data;
   }
-  if (!plan) throw new HttpError(502, 'ai_invalid', 'Der generierte Plan war ungültig. Bitte nochmal versuchen.');
+  return null;
+}
+
+Deno.serve(handler(async (req) => {
+  const user = await requireUser(req);
+  const body = Body.parse(await req.json().catch(() => ({})));
+  const db = serviceClient();
+
+  const profile = must(await db.from('profiles').select('gender, birth_year, bodyweight_kg, experience, goal, location, training_days, timezone, language').eq('id', user.id).single(), 'profile') as Record<string, unknown>;
+  const today = localDate(new Date(), (profile.timezone as string) || 'Europe/Berlin');
+
+  // Alle 4 Wochen neu generierbar
+  const active = must(await db.from('training_plans').select('id, valid_until').eq('user_id', user.id).eq('is_active', true).eq('source', 'ai'), 'active plan') as { id: string; valid_until: string | null }[];
+  if (active[0]?.valid_until && active[0].valid_until > today && !body.force) {
+    throw new HttpError(409, 'plan_locked', `Neuer Plan ab ${active[0].valid_until} möglich.`);
+  }
+
+  const days = ((profile.training_days as number[]) ?? [1, 3, 5]).slice().sort();
+  const equipment = EQUIPMENT_BY_LOCATION[(profile.location as string) ?? 'gym'] ?? EQUIPMENT_BY_LOCATION.gym;
+  const exercises = must(await db.from('exercises').select('id, slug, name_de, primary_muscle, secondary_muscles, equipment, ranking_type').in('equipment', equipment), 'exercises') as Ex[];
+  if (exercises.length < 3) throw new HttpError(500, 'no_exercises', 'Übungskatalog ist leer – seed.sql ausführen.');
+  const bySlug = new Map(exercises.map((e) => [e.slug, e]));
+
+  const muscles = must(await db.from('muscle_ranks').select('muscle, score').eq('user_id', user.id), 'muscle ranks') as { muscle: Muscle; score: number }[];
+  const prs = new Map((must(await db.from('personal_records').select('exercise_id, best_1rm').eq('user_id', user.id), 'prs') as { exercise_id: string; best_1rm: number | null }[]).map((p) => [p.exercise_id, p.best_1rm]));
+
+  const allowed = new Set(bySlug.keys());
+  const rulesPlan = (): Plan => PlanSchema.parse(generatePlan({
+    goal: ((profile.goal as Goal) ?? 'fitness'),
+    experience: ((profile.experience as Experience) ?? 'beginner'),
+    days,
+    exercises: exercises.map((e) => ({ slug: e.slug, primaryMuscle: e.primary_muscle, secondaryMuscles: e.secondary_muscles ?? [], equipment: e.equipment, rankingType: e.ranking_type as 'weight_ratio' | 'reps' | 'time' })),
+    muscleScores: Object.fromEntries(muscles.map((m) => [m.muscle, Number(m.score)])),
+  }));
+
+  let plan: Plan | null = null;
+  let generator: 'claude' | 'rules' = 'rules';
+  if (Deno.env.get('ANTHROPIC_API_KEY')) {
+    try {
+      plan = await claudePlan(profile, days, exercises, muscles, allowed);
+      if (plan) generator = 'claude';
+    } catch (e) {
+      console.error('Claude-Plan fehlgeschlagen, nutze Regeln:', e);
+    }
+  }
+  if (!plan) plan = rulesPlan();
 
   // Speichern: alten Plan deaktivieren, neuen anlegen
   must(await db.from('training_plans').update({ is_active: false }).eq('user_id', user.id).eq('is_active', true), 'deactivate');
   const created = must(await db.from('training_plans').insert({
     user_id: user.id, title: plan.title, source: 'ai', is_active: true, valid_until: addDays(today, 28),
-    input: { goal: profile.goal, experience: profile.experience, location: profile.location, days, summary: plan.summary },
+    input: { goal: profile.goal, experience: profile.experience, location: profile.location, days, summary: plan.summary, generator },
   }).select('id').single(), 'plan') as { id: string };
 
   for (const [i, day] of plan.days.sort((a, b) => a.weekday - b.weekday).entries()) {
@@ -205,5 +231,5 @@ Deno.serve(handler(async (req) => {
     })), 'plan exercises');
   }
 
-  return json({ planId: created.id, validUntil: addDays(today, 28), plan });
+  return json({ planId: created.id, validUntil: addDays(today, 28), generator, plan });
 }));
