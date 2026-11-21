@@ -52,5 +52,127 @@
     "legs": "Beine",
     "glutes": "Gesäß",
     "core": "Core"
-  }
+  },
+  "onboarding": {
+    "back": "Zurück",
+    "next": "Weiter",
+    "skip": "Überspringen",
+    "welcome": {
+      "title": "Finde heraus, wie stark du wirklich bist.",
+      "sub": "Trainiere, steige im Rang auf und miss dich mit Freunden.",
+      "start": "Los geht’s",
+      "login": "Ich habe schon ein Konto"
+    },
+    "language": {
+      "title": "Welche Sprache?"
+    },
+    "goal": {
+      "title": "Was ist dein Ziel?",
+      "muscle": "Muskelaufbau",
+      "muscle_sub": "Mehr Masse, sichtbare Muskeln",
+      "strength": "Kraft",
+      "strength_sub": "Schwerer heben",
+      "fat_loss": "Abnehmen",
+      "fat_loss_sub": "Fett verlieren, Muskeln halten",
+      "fitness": "Fit bleiben",
+      "fitness_sub": "Gesund und aktiv"
+    },
+    "experience": {
+      "title": "Wie viel Erfahrung hast du?",
+      "beginner": "Anfänger",
+      "beginner_sub": "Unter 1 Jahr Krafttraining",
+      "intermediate": "Fortgeschritten",
+      "intermediate_sub": "1–3 Jahre regelmäßig",
+      "advanced": "Profi",
+      "advanced_sub": "Über 3 Jahre, strukturiert"
+    },
+    "gender": {
+      "title": "Dein Geschlecht",
+      "sub": "Nur für faire Kraftnormen – sieht sonst niemand.",
+      "male": "Männlich",
+      "female": "Weiblich",
+      "none": "Keine Angabe"
+    },
+    "age": {
+      "title": "Wie alt bist du?",
+      "unit": "Jahre"
+    },
+    "weight": {
+      "title": "Dein Körpergewicht",
+      "sub": "Ränge basieren auf relativer Kraft."
+    },
+    "height": {
+      "title": "Wie groß bist du?"
+    },
+    "location": {
+      "title": "Wo trainierst du?",
+      "gym": "Fitnessstudio",
+      "gym_sub": "Volle Ausstattung",
+      "home_dumbbells": "Zuhause mit Hanteln",
+      "home_dumbbells_sub": "Kurz- und Langhanteln",
+      "bodyweight": "Nur Körpergewicht",
+      "bodyweight_sub": "Kein Equipment"
+    },
+    "days": {
+      "title": "Wann willst du trainieren?",
+      "sub": "{{count}} Tage pro Woche",
+      "min": "Mindestens 2 Tage"
+    },
+    "strength": {
+      "title": "Kraft-Check",
+      "sub": "Deine Bestwerte. Kennst du einen nicht? Wir schätzen ihn.",
+      "unknown": "Weiß ich nicht",
+      "reps": "Wdh.",
+      "weight": "Gewicht"
+    },
+    "calc": {
+      "title": "Analysiere deine Stärke…",
+      "s1": "Kraftnormen vergleichen",
+      "s2": "Muskelgruppen bewerten",
+      "s3": "Rang berechnen"
+    },
+    "reveal": {
+      "your": "Dein Rang",
+      "stronger": "Du bist stärker als {{pct}} % der Nutzer deines Gewichts",
+      "top": "Deine stärksten Muskelgruppen",
+      "estimated": "Teilweise geschätzt – trainiere, um es zu beweisen."
+    },
+    "plan": {
+      "title": "Dein Wochenplan",
+      "sub": "Kostenlos erstellt aus deinen Angaben.",
+      "exercises": "{{count}} Übungen"
+    },
+    "notify": {
+      "title": "Bleib dran",
+      "sub": "Wir erinnern dich an Trainingstage, Streaks und das Liga-Ende. Kein Spam.",
+      "allow": "Erinnerungen erlauben",
+      "later": "Später"
+    },
+    "account": {
+      "title": "Sichere deinen Fortschritt",
+      "sub": "Konto erstellen – deine Angaben werden übernommen.",
+      "username": "Benutzername",
+      "email": "E-Mail",
+      "password": "Passwort (mind. 8 Zeichen)",
+      "create": "Konto erstellen",
+      "later": "Ohne Konto weiter",
+      "taken": "Benutzername ist vergeben",
+      "invalid": "3–20 Zeichen: a–z, 0–9, _ oder .",
+      "offline": "Supabase ist noch nicht verbunden – du kannst ohne Konto weitermachen.",
+      "check": "Bestätige deine E-Mail, dann geht’s weiter."
+    },
+    "_lang": {
+      "de": "Deutsch",
+      "en": "English"
+    }
+  },
+  "weekdays": [
+    "Mo",
+    "Di",
+    "Mi",
+    "Do",
+    "Fr",
+    "Sa",
+    "So"
+  ]
 }

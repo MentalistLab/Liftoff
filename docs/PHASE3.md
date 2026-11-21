@@ -48,3 +48,22 @@ npx expo start           # QR-Code mit Expo Go scannen
 npm test                 # 81 Tests
 npm run typecheck
 ```
+
+## Onboarding (`app/onboarding.tsx`)
+
+16 Schritte mit Fortschrittsbalken, „Zurück“ überall, Haptik bei jeder Auswahl, Übergangsanimation:
+Welcome → Sprache → Ziel → Erfahrung → Geschlecht → Alter → Gewicht (kg/lbs) → Größe (cm/ft) → Trainingsort →
+Trainingstage → Kraft-Check (überspringbar, „Weiß ich nicht“ je Übung) → Berechnung → **Rang-Reveal**
+(Emblem mit Feder-Animation, Glow, Konfetti, Perzentil zählt hoch, Top-3-Muskeln) → Plan-Vorschau →
+Benachrichtigungen → Konto.
+
+- Erster Rang: `lib/onboardingRanks.ts` – echte Bestwerte über den Rang-Algorithmus, unbekannte Werte
+  konservativ aus der Erfahrung geschätzt (Tests in `__tests__/onboardingRanks.test.ts`).
+- Plan-Vorschau nutzt den kostenlosen Plan-Generator aus Phase 2, gefiltert nach Trainingsort.
+- Konto: E-Mail-Registrierung über Supabase; Benutzername wird per `username_available` geprüft,
+  danach werden die Onboarding-Daten ins Profil geschrieben. Ohne Supabase oder „Ohne Konto weiter“ bleibt
+  alles lokal (`stores/onboarding.ts`, persistiert) und der Ränge-Tab zeigt das Onboarding-Ergebnis.
+- Start: `app/index.tsx` leitet zum Onboarding, bis es abgeschlossen ist.
+
+Noch offen: Apple-/Google-Login (braucht Entwickler-Konten), Login für bestehende Konten,
+die Onboarding-Ränge serverseitig speichern (Edge Function), Freunde einladen.

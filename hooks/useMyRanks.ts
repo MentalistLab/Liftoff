@@ -4,6 +4,7 @@ import type { MuscleScores } from '../lib/muscleMapView';
 import { overallScore } from '../lib/ranking';
 import type { Gender, Muscle } from '../lib/standards';
 import { supabase, supabaseConfigured } from '../lib/supabase';
+import { useOnboarding } from '../stores/onboarding';
 
 export interface MyRanks {
   gender: Gender;
@@ -13,9 +14,12 @@ export interface MyRanks {
 }
 
 async function fetchMyRanks(): Promise<MyRanks> {
-  const demo = (): MyRanks => ({
-    gender: DEMO_PROFILE.gender, scores: DEMO_MUSCLE_SCORES, overall: overallScore(DEMO_MUSCLE_SCORES), demo: true,
-  });
+  const demo = (): MyRanks => {
+    // Ohne Konto: Ergebnis aus dem Onboarding, sonst Beispieldaten.
+    const ob = useOnboarding.getState();
+    if (ob.result) return { gender: ob.gender ?? 'none', scores: ob.result.muscleScores, overall: ob.result.overall, demo: false };
+    return { gender: DEMO_PROFILE.gender, scores: DEMO_MUSCLE_SCORES, overall: overallScore(DEMO_MUSCLE_SCORES), demo: true };
+  };
   if (!supabaseConfigured) return demo();
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return demo();
@@ -33,5 +37,6 @@ async function fetchMyRanks(): Promise<MyRanks> {
 }
 
 export function useMyRanks() {
-  return useQuery({ queryKey: ['my-ranks'], queryFn: fetchMyRanks });
+  const resultKey = useOnboarding((s) => s.result?.overall ?? null);
+  return useQuery({ queryKey: ['my-ranks', resultKey], queryFn: fetchMyRanks });
 }

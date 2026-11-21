@@ -52,5 +52,127 @@
     "legs": "Legs",
     "glutes": "Glutes",
     "core": "Core"
-  }
+  },
+  "onboarding": {
+    "back": "Back",
+    "next": "Continue",
+    "skip": "Skip",
+    "welcome": {
+      "title": "Find out how strong you really are.",
+      "sub": "Train, rank up and compete with friends.",
+      "start": "Let’s go",
+      "login": "I already have an account"
+    },
+    "language": {
+      "title": "Which language?"
+    },
+    "goal": {
+      "title": "What’s your goal?",
+      "muscle": "Build muscle",
+      "muscle_sub": "More size, visible muscle",
+      "strength": "Strength",
+      "strength_sub": "Lift heavier",
+      "fat_loss": "Lose fat",
+      "fat_loss_sub": "Lose fat, keep muscle",
+      "fitness": "Stay fit",
+      "fitness_sub": "Healthy and active"
+    },
+    "experience": {
+      "title": "How experienced are you?",
+      "beginner": "Beginner",
+      "beginner_sub": "Less than 1 year of lifting",
+      "intermediate": "Intermediate",
+      "intermediate_sub": "1–3 years, regularly",
+      "advanced": "Advanced",
+      "advanced_sub": "3+ years, structured"
+    },
+    "gender": {
+      "title": "Your gender",
+      "sub": "Only for fair strength standards – nobody else sees it.",
+      "male": "Male",
+      "female": "Female",
+      "none": "Prefer not to say"
+    },
+    "age": {
+      "title": "How old are you?",
+      "unit": "years"
+    },
+    "weight": {
+      "title": "Your body weight",
+      "sub": "Ranks are based on relative strength."
+    },
+    "height": {
+      "title": "How tall are you?"
+    },
+    "location": {
+      "title": "Where do you train?",
+      "gym": "Gym",
+      "gym_sub": "Full equipment",
+      "home_dumbbells": "Home with weights",
+      "home_dumbbells_sub": "Dumbbells and barbell",
+      "bodyweight": "Bodyweight only",
+      "bodyweight_sub": "No equipment"
+    },
+    "days": {
+      "title": "When do you want to train?",
+      "sub": "{{count}} days per week",
+      "min": "At least 2 days"
+    },
+    "strength": {
+      "title": "Strength check",
+      "sub": "Your best lifts. Don’t know one? We’ll estimate it.",
+      "unknown": "I don’t know",
+      "reps": "reps",
+      "weight": "Weight"
+    },
+    "calc": {
+      "title": "Analysing your strength…",
+      "s1": "Comparing strength standards",
+      "s2": "Rating muscle groups",
+      "s3": "Calculating rank"
+    },
+    "reveal": {
+      "your": "Your rank",
+      "stronger": "You’re stronger than {{pct}}% of users at your weight",
+      "top": "Your strongest muscle groups",
+      "estimated": "Partly estimated – train to prove it."
+    },
+    "plan": {
+      "title": "Your weekly plan",
+      "sub": "Built for free from your answers.",
+      "exercises": "{{count}} exercises"
+    },
+    "notify": {
+      "title": "Stay on track",
+      "sub": "We remind you of training days, streaks and league end. No spam.",
+      "allow": "Allow reminders",
+      "later": "Later"
+    },
+    "account": {
+      "title": "Save your progress",
+      "sub": "Create an account – your answers carry over.",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password (min. 8 characters)",
+      "create": "Create account",
+      "later": "Continue without account",
+      "taken": "Username is taken",
+      "invalid": "3–20 characters: a–z, 0–9, _ or .",
+      "offline": "Supabase isn’t connected yet – you can continue without an account.",
+      "check": "Confirm your email to continue."
+    },
+    "_lang": {
+      "de": "Deutsch",
+      "en": "English"
+    }
+  },
+  "weekdays": [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun"
+  ]
 }

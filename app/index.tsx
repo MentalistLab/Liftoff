@@ -1,3 +1,8 @@
 import { Redirect } from 'expo-router';
-// Onboarding/Auth folgen; bis dahin direkt in die App.
-export default function Index() { return <Redirect href="/home" />; }
+import React from 'react';
+import { useOnboarding } from '../stores/onboarding';
+
+export default function Index() {
+  const completed = useOnboarding((s) => s.completed);
+  return <Redirect href={completed ? '/home' : '/onboarding'} />;
+}
