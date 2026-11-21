@@ -24,7 +24,7 @@ export default function HomeScreen() {
   const ob = useOnboarding();
   const { xp, history, active, start, streak } = useWorkout();
   const lp = levelFromXp(xp);
-  const plan = useMemo(() => (ob.result ? buildPlan(ob, ob.result.muscleScores) : null), [ob]);
+  const plan = useMemo(() => (ob.result || ob.completed ? buildPlan(ob, ob.result?.muscleScores) : null), [ob]);
   const todayWd = ((new Date().getDay() + 6) % 7) + 1;
   const today = plan?.days.find((d) => d.weekday === todayWd);
   const names = t('weekdays', { returnObjects: true }) as unknown as string[];

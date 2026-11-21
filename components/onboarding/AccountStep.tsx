@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TextInput, View, type TextInputProps } from 'react-native';
 import { supabase, supabaseConfigured } from '../../lib/supabase';
-import { syncOnboarding } from '../../lib/sync';
+import { pullFromServer, syncOnboarding } from '../../lib/sync';
 import { useSettings } from '../../stores/settings';
 import { colors, fonts, radius, space } from '../../theme';
 import { Button, Text } from '../ui';
@@ -43,6 +43,7 @@ export function AccountStep({ onDone, initialMode = 'signup' }: { onDone: () => 
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setMsg(t('onboarding.account.wrong')); return; }
       await syncOnboarding();
+      await pullFromServer().catch(() => false);
       onDone();
     } finally { setBusy(false); }
   }
@@ -56,6 +57,7 @@ export function AccountStep({ onDone, initialMode = 'signup' }: { onDone: () => 
       if (error) { setMsg(error.message); return; }
       if (!data.session) { setMsg(t('onboarding.account.check')); return; }
       await syncOnboarding();
+      await pullFromServer().catch(() => false);
       onDone();
     } finally { setBusy(false); }
   }

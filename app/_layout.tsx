@@ -6,6 +6,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
+import { AppState } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CelebrationModal } from '../components/fx/CelebrationModal';
@@ -23,6 +24,13 @@ export default function RootLayout() {
   const [loaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
   useEffect(() => { if (loaded) SplashScreen.hideAsync(); }, [loaded]);
   useEffect(() => { syncPending().finally(runStartupChecks); }, []);
+  // Zurück in der App (z. B. nach Training auf dem anderen Gerät) → neu abgleichen
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => {
+      if (st === 'active') syncPending().then(() => queryClient.invalidateQueries()).catch(() => undefined);
+    });
+    return () => sub.remove();
+  }, []);
   if (!loaded) return null;
 
   return (

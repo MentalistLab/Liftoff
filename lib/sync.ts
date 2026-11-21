@@ -1,5 +1,7 @@
 // Offline-Sync: abgeschlossene Workouts hochladen und serverseitig auswerten lassen.
 // Idempotent über client_id (unique) und finalized_at (409 = schon ausgewertet).
+import i18n from './i18n';
+import { mergeHistory, type ServerWorkoutRow } from './history';
 import { supabase, supabaseConfigured } from './supabase';
 import { useOnboarding } from '../stores/onboarding';
 import { useSettings } from '../stores/settings';
@@ -66,8 +68,9 @@ export async function syncWorkout(w: FinishedWorkout): Promise<boolean> {
 export async function syncPending(): Promise<void> {
   try { await syncOnboarding(); } catch { /* nächster Start */ }
   for (const w of useWorkout.getState().history.filter((h) => !h.synced)) {
-    try { await syncWorkout(w); } catch { return; }
+    try { await syncWorkout(w); } catch { break; }
   }
+  try { await pullFromServer(); } catch { /* offline */ }
 }
 
 /**
@@ -94,4 +97,56 @@ export async function syncOnboarding(): Promise<void> {
   const r = await supabase.functions.invoke('onboarding-ranks', { body: { lifts: ob.lifts } });
   const status = (r.error as { context?: { status?: number } } | null)?.context?.status;
   if (!r.error || status === 409) useOnboarding.setState({ serverSynced: true });
+}
+
+/**
+ * Geräteübergreifend: abgeschlossene Workouts, XP und Streak vom Server holen und mit dem Gerät zusammenführen.
+ * So sieht man auf Handy und iPad dieselbe Historie, dieselben Diagramme und dieselben Zielgewichte.
+ */
+export async function pullFromServer(): Promise<boolean> {
+  if (!supabaseConfigured) return false;
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return false;
+  const uid = session.user.id;
+  const [p, w] = await Promise.all([
+    supabase.from('profiles').select('xp, gender, bodyweight_kg, height_cm, birth_year, experience, goal, location, training_days, current_streak, longest_streak, streak_freezes, last_trained_date, streak_evaluated_date').eq('id', uid).single(),
+    supabase.from('workouts')
+      .select('id, client_id, started_at, ended_at, notes, workout_sets(id, set_index, weight_kg, reps, duration_s, completed, exercises(slug))')
+      .eq('user_id', uid).not('finalized_at', 'is', null).order('ended_at', { ascending: false }).limit(200),
+  ]);
+  if (p.error || w.error) return false;
+  const prof = p.data;
+  const ob = useOnboarding.getState();
+  const ctx = {
+    gender: (prof.gender ?? ob.gender ?? 'none') as 'male' | 'female' | 'none',
+    bodyweightKg: Number(prof.bodyweight_kg ?? ob.bodyweightKg),
+    age: prof.birth_year ? new Date().getFullYear() - prof.birth_year : ob.age,
+  };
+  const st = useWorkout.getState();
+  const merged = mergeHistory(w.data as unknown as ServerWorkoutRow[], st.history, ctx, i18n.t('train.freeTitle'));
+  useWorkout.setState({
+    history: merged.history as typeof st.history,
+    bests: merged.bests,
+    lastSets: { ...st.lastSets, ...merged.lastSets },
+    // Server ist maßgeblich für XP und Streak; noch nicht hochgeladene Workouts lokal draufrechnen
+    xp: Math.max(prof.xp ?? 0, 0) + st.history.filter((h) => !h.synced).reduce((a, h) => a + h.summary.xp.total, 0),
+    streak: {
+      current: prof.current_streak ?? 0, longest: prof.longest_streak ?? 0, freezes: prof.streak_freezes ?? 0,
+      lastTrainedDate: prof.last_trained_date ?? null, lastEvaluatedDate: prof.streak_evaluated_date ?? null,
+    },
+  });
+  // Zweites Gerät: Profil-Angaben (Plan, Trainingstage, Körperdaten) vom Server übernehmen
+  if (!ob.result) {
+    useOnboarding.setState({
+      ...(prof.goal ? { goal: prof.goal } : {}), ...(prof.experience ? { experience: prof.experience } : {}),
+      ...(prof.location ? { location: prof.location } : {}), ...(prof.gender ? { gender: prof.gender } : {}),
+      ...(prof.bodyweight_kg ? { bodyweightKg: Number(prof.bodyweight_kg) } : {}), ...(prof.height_cm ? { heightCm: Number(prof.height_cm) } : {}),
+      ...(prof.birth_year ? { age: new Date().getFullYear() - prof.birth_year } : {}),
+      ...(prof.training_days?.length ? { trainingDays: prof.training_days } : {}),
+      serverSynced: true,
+    });
+  }
+  // Onboarding gilt auf einem zweiten Gerät als erledigt, sobald man angemeldet ist
+  if (!useOnboarding.getState().completed) useOnboarding.setState({ completed: true });
+  return true;
 }
