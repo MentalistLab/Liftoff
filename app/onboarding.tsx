@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -25,12 +25,17 @@ export default function Onboarding() {
   const t = tr as unknown as (k: string, o?: object) => string;
   const ob = useOnboarding();
   const { language, setLanguage, unitSystem, setUnitSystem } = useSettings();
-  const [i, setI] = useState(0);
+  const params = useLocalSearchParams<{ step?: string; mode?: 'signup' | 'signin' }>();
+  const [i, setI] = useState(() => Math.max(0, STEPS.indexOf((params.step ?? 'welcome') as Step)));
+  const [accountMode, setAccountMode] = useState<'signup' | 'signin'>(params.mode ?? 'signup');
   const step: Step = STEPS[i];
   const next = useCallback(() => setI((n) => Math.min(STEPS.length - 1, n + 1)), []);
   const back = () => setI((n) => Math.max(0, step === 'reveal' ? n - 2 : n - 1));
 
-  const finish = () => { ob.complete(); router.replace('/home'); };
+  const finish = () => {
+    if (!useSettings.getState().weightLog.length) useSettings.getState().logWeight(ob.bodyweightKg);
+    ob.complete(); router.replace('/home');
+  };
   const runCalc = useCallback(() => {
     const s = useOnboarding.getState();
     s.setResult(computeOnboardingRanks({
@@ -68,7 +73,7 @@ export default function Onboarding() {
       footer = (
         <View style={{ gap: space[2] }}>
           <Button label={t('onboarding.welcome.start')} onPress={next} />
-          <Button label={t('onboarding.welcome.login')} variant="ghost" onPress={() => setI(STEPS.indexOf('account'))} />
+          <Button label={t('onboarding.welcome.login')} variant="ghost" onPress={() => { setAccountMode('signin'); setI(STEPS.indexOf('account')); }} />
         </View>
       );
       break;
@@ -176,7 +181,7 @@ export default function Onboarding() {
       );
       break;
     case 'account':
-      body = <>{title('account')}{sub('account')}<AccountStep onDone={finish} /></>;
+      body = <>{title('account')}{sub('account')}<AccountStep key={accountMode} onDone={finish} initialMode={accountMode} /></>;
       footer = null;
       break;
   }

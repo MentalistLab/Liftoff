@@ -25,7 +25,7 @@ function Field(props: TextInputProps & { label: string }) {
   );
 }
 
-export function AccountStep({ onDone }: { onDone: () => void }) {
+export function AccountStep({ onDone, initialMode = 'signup' }: { onDone: () => void; initialMode?: 'signup' | 'signin' }) {
   const { t } = useTranslation();
   const ob = useOnboarding();
   const language = useSettings((s) => s.language);
@@ -35,8 +35,18 @@ export function AccountStep({ onDone }: { onDone: () => void }) {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [mode, setMode] = useState(initialMode);
 
-  const valid = USERNAME.test(username) && /.+@.+\..+/.test(email) && password.length >= 8;
+  const valid = (mode === 'signin' || USERNAME.test(username)) && /.+@.+\..+/.test(email) && password.length >= (mode === 'signin' ? 1 : 8);
+
+  async function signIn() {
+    setBusy(true); setMsg(null);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) { setMsg(t('onboarding.account.wrong')); return; }
+      onDone();
+    } finally { setBusy(false); }
+  }
 
   async function create() {
     setBusy(true); setMsg(null);
@@ -65,12 +75,18 @@ export function AccountStep({ onDone }: { onDone: () => void }) {
   }
   return (
     <View style={{ gap: space[3] }}>
-      <Field label={t('onboarding.account.username')} value={username} onChangeText={(s) => setUsername(s.toLowerCase())} maxLength={20} />
-      {username.length > 0 && !USERNAME.test(username) ? <Text variant="caption" color={colors.danger}>{t('onboarding.account.invalid')}</Text> : null}
+      {mode === 'signup' ? (
+        <>
+          <Field label={t('onboarding.account.username')} value={username} onChangeText={(s) => setUsername(s.toLowerCase())} maxLength={20} />
+          {username.length > 0 && !USERNAME.test(username) ? <Text variant="caption" color={colors.danger}>{t('onboarding.account.invalid')}</Text> : null}
+        </>
+      ) : null}
       <Field label={t('onboarding.account.email')} value={email} onChangeText={setEmail} keyboardType="email-address" textContentType="emailAddress" />
-      <Field label={t('onboarding.account.password')} value={password} onChangeText={setPassword} secureTextEntry textContentType="newPassword" />
+      <Field label={t('onboarding.account.password')} value={password} onChangeText={setPassword} secureTextEntry textContentType={mode === 'signup' ? 'newPassword' : 'password'} />
       {msg ? <Text variant="caption" color={colors.warning} accessibilityLiveRegion="polite">{msg}</Text> : null}
-      <Button label={t('onboarding.account.create')} onPress={create} disabled={!valid} loading={busy} />
+      <Button label={t(mode === 'signup' ? 'onboarding.account.create' : 'onboarding.account.signIn')} onPress={mode === 'signup' ? create : signIn} disabled={!valid} loading={busy} />
+      <Button label={t(mode === 'signup' ? 'onboarding.account.haveAccount' : 'onboarding.account.noAccount')} variant="secondary" size="m"
+        onPress={() => { setMsg(null); setMode(mode === 'signup' ? 'signin' : 'signup'); }} />
       <Button label={t('onboarding.account.later')} variant="ghost" onPress={onDone} />
     </View>
   );

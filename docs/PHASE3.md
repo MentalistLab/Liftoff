@@ -102,3 +102,18 @@ ohne Anmeldung zeigen alle drei Ansichten klar markierte Beispieldaten (`lib/dem
 - **Realtime:** Liga-Punkte und neue Feed-Einträge aktualisieren sich live (`useSocialRealtime`).
 
 Noch offen: QR-Code zum Hinzufügen, Länder-Bestenliste, Liga-Ergebnis-Modal beim App-Start.
+
+## Profil-Tab (`app/(tabs)/profile.tsx`)
+
+- Kopf: Avatar mit Rang-Rahmen, Benutzername (oder „Gast“), Gesamtrang, Level mit XP-Balken.
+- Statistik: Workouts, Gesamtvolumen, längster Streak, Bestleistungen (`lib/profileStats.ts`, Tests in `__tests__/profileStats.test.ts`).
+- **Abzeichen-Wand:** alle 36 Abzeichen, freigeschaltete zuerst, Tippen zeigt Beschreibung. Lokal aus der Historie berechnet,
+  angemeldet zusätzlich die vom Server vergebenen (`user_badges`).
+- **Verläufe** mit eigenen SVG-Charts (`components/charts`): Körpergewicht (Eintrag pro Tag), 1RM je Übung, Volumen pro Woche (8 Wochen).
+- **Einstellungen:** Sprache, Einheiten (kg/lbs überall im Profil), Trainings-Erinnerungen (fragt Berechtigung), privates Profil.
+  Angemeldet werden Änderungen ins Supabase-Profil geschrieben.
+- **Konto:** anmelden/registrieren (Konto-Schritt jetzt auch mit „Anmelden“ für bestehende Konten), abmelden,
+  **Konto löschen** über die neue Edge Function `delete-account` (löscht Auth-Nutzer → alle Daten per Cascade, Avatar-Dateien),
+  ohne Konto: lokale Daten zurücksetzen.
+
+Deploy der neuen Function: `supabase functions deploy delete-account`.
