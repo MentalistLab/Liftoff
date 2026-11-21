@@ -20,3 +20,6 @@ verify_jwt = true
 
 [functions.onboarding-ranks]
 verify_jwt = true
+
+[functions.admin-stats]
+verify_jwt = true
