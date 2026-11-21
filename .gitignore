@@ -5,3 +5,4 @@ node_modules/
 dist/
 *.log
 supabase/functions/.env
+expo-env.d.ts

@@ -1,0 +1,56 @@
+{
+  "tabs": {
+    "home": "Home",
+    "train": "Training",
+    "ranks": "Ränge",
+    "social": "Social",
+    "profile": "Profil"
+  },
+  "common": {
+    "demo": "Demo-Modus – Supabase ist noch nicht verbunden",
+    "soon": "Kommt im nächsten Schritt"
+  },
+  "home": {
+    "greeting": "Hallo, {{name}}",
+    "streak": "{{count}} Tage Streak",
+    "level": "Level {{level}}",
+    "today": "Heutiges Training",
+    "start": "Training starten"
+  },
+  "train": {
+    "title": "Training",
+    "plan": "Dein Plan",
+    "library": "Übungsbibliothek",
+    "free": "Freies Workout"
+  },
+  "ranks": {
+    "title": "Ränge",
+    "overall": "Gesamtrang",
+    "front": "Vorne",
+    "back": "Hinten",
+    "muscles": "Muskelgruppen",
+    "next": "Noch {{pct}} % bis {{rank}}",
+    "unranked": "Noch kein Rang",
+    "max": "Höchster Rang"
+  },
+  "social": {
+    "title": "Social",
+    "league": "Liga",
+    "friends": "Freunde",
+    "global": "Global"
+  },
+  "profile": {
+    "title": "Profil",
+    "language": "Sprache"
+  },
+  "muscles": {
+    "chest": "Brust",
+    "back": "Rücken",
+    "shoulders": "Schultern",
+    "biceps": "Bizeps",
+    "triceps": "Trizeps",
+    "legs": "Beine",
+    "glutes": "Gesäß",
+    "core": "Core"
+  }
+}
