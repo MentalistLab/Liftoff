@@ -8,7 +8,13 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0B0D12",
-    "ios": { "supportsTablet": false, "bundleIdentifier": "com.ascend.app" },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.ascend.app",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
     "android": {
       "package": "com.ascend.app",
       "adaptiveIcon": {
@@ -16,15 +22,41 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "POST_NOTIFICATIONS",
+        "VIBRATE"
+      ]
     },
-    "web": { "favicon": "./assets/favicon.png" },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
     "plugins": [
       "expo-router",
       "expo-localization",
       "expo-font",
-      ["expo-splash-screen", { "backgroundColor": "#0B0D12", "image": "./assets/splash-icon.png", "imageWidth": 160 }]
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0B0D12",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#6C5CFF"
+        }
+      ]
     ],
-    "experiments": { "typedRoutes": true }
+    "experiments": {
+      "typedRoutes": true
+    },
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ]
   }
 }

@@ -117,3 +117,11 @@ Noch offen: QR-Code zum Hinzufügen, Länder-Bestenliste, Liga-Ergebnis-Modal be
   ohne Konto: lokale Daten zurücksetzen.
 
 Deploy der neuen Function: `supabase functions deploy delete-account`.
+
+# Phase 4 – Testen & Installieren
+
+- `eas.json`: Profile `development` (APK/intern), `preview` (APK zum direkten Installieren), `production` (AAB / App Store, Build-Nummer automatisch).
+- App-Icon, Android-Adaptive-Icon (inkl. Monochrom für Themed Icons), Splash und Favicon aus `scripts/generate-icons.js`.
+- `app.json`: Bundle-ID `com.ascend.app` (vor dem ersten Store-Build ändern), Benachrichtigungs-Plugin, Exportkontrolle für iOS.
+- `npx expo-doctor`: 20/20; `npx expo export` für iOS und Android baut fehlerfrei; Jest auf die SDK-Version angehoben.
+- `README.md`: Schritt-für-Schritt-Anleitung (Expo Go, Supabase, EAS-APK, TestFlight).
