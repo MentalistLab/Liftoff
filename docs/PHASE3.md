@@ -67,3 +67,22 @@ Benachrichtigungen → Konto.
 
 Noch offen: Apple-/Google-Login (braucht Entwickler-Konten), Login für bestehende Konten,
 die Onboarding-Ränge serverseitig speichern (Edge Function), Freunde einladen.
+
+## Training & aktives Workout
+
+- **Training-Tab** (`app/(tabs)/train.tsx`): Wochenplan mit „Heute“-Markierung und Start-Button, freies Workout,
+  „Workout fortsetzen“-Banner mit Laufzeit, Übungsbibliothek mit Suche und Muskel-Filter.
+- **Aktives Workout** (`app/workout/active.tsx`, Vollbild): Timer, Übungen mit Satz-Zeilen
+  (vorherige Werte als Platzhalter, werden beim Abhaken übernommen), Haken mit Haptik + Animation,
+  automatischer **Pausen-Timer** als Bottom-Sheet (±15 s, Überspringen, Haptik am Ende), Übung hinzufügen/tauschen/entfernen,
+  Satz hinzufügen, Satz entfernen per langem Druck auf die Nummer, Notizen, Verwerfen/Beenden mit Rückfrage.
+- **Offline-first:** `stores/workout.ts` speichert das laufende Workout bei jeder Eingabe in AsyncStorage
+  (übersteht App-Neustart). Beim Beenden wird sofort lokal ausgewertet (`lib/workoutSummary.ts`, gleiche Rang-/XP-Logik wie der Server).
+- **Sync** (`lib/sync.ts`): angemeldet → Workout + Sätze hochladen (idempotent über `client_id`), dann `finish-workout`
+  aufrufen. Fehlgeschlagenes wird beim nächsten App-Start nachgereicht.
+- **Zusammenfassung** (`app/workout/summary.tsx`): Dauer, Volumen, Sätze, XP (zählen hoch), Level-Balken, neue PRs,
+  Rang-Fortschritt je Übung mit ▲ bei Aufstieg, Konfetti bei PR/Rang-Aufstieg, Sync-Status.
+- **Home:** Level/XP aus echten Workouts, Wochenkalender (geplant/erledigt), heutiges Training mit Start-Button.
+
+Noch offen: Teilen-Karte als Bild, Plan-Workouts mit vorgeschlagenen Gewichten aus der Progression,
+Server-Ergebnis nach dem Sync in die Zusammenfassung übernehmen, Streak lokal anzeigen.

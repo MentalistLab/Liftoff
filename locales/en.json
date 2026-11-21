@@ -15,13 +15,25 @@
     "streak": "{{count}}-day streak",
     "level": "Level {{level}}",
     "today": "Today's workout",
-    "start": "Start workout"
+    "start": "Start workout",
+    "greetingAnon": "Ready to train?",
+    "rest": "Rest day today",
+    "week": "This week",
+    "workouts": "{{count}} workouts"
   },
   "train": {
     "title": "Train",
     "plan": "Your plan",
     "library": "Exercise library",
-    "free": "Free workout"
+    "free": "Free workout",
+    "start": "Start",
+    "resume": "Resume workout",
+    "running": "Running for {{time}}",
+    "search": "Search exercises",
+    "all": "All",
+    "noPlan": "Finish onboarding to see your plan.",
+    "today": "Today",
+    "freeTitle": "Free workout"
   },
   "ranks": {
     "title": "Ranks",
@@ -174,5 +186,43 @@
     "Fri",
     "Sat",
     "Sun"
-  ]
+  ],
+  "workout": {
+    "finish": "Finish",
+    "set": "Set",
+    "prev": "Previous",
+    "kg": "kg",
+    "reps": "reps",
+    "sec": "sec",
+    "addSet": "+ Set",
+    "addExercise": "+ Add exercise",
+    "swap": "Swap",
+    "remove": "Remove",
+    "notes": "Notes",
+    "notesPh": "How did it go?",
+    "discard": "Discard",
+    "discardQ": "Discard workout? All sets will be lost.",
+    "finishQ": "Finish workout?",
+    "noSets": "Check off at least one set.",
+    "rest": "Rest",
+    "skip": "Skip",
+    "cancel": "Cancel",
+    "done": "Set done",
+    "pick": "Choose exercise"
+  },
+  "summary": {
+    "title": "Great work!",
+    "duration": "Duration",
+    "volume": "Volume",
+    "sets": "Sets",
+    "xp": "XP earned",
+    "prs": "New personal records",
+    "ranks": "Rank progress",
+    "rankUp": "Rank up!",
+    "first": "First entry",
+    "done": "Done",
+    "offline": "Saved offline – syncs once you are online and signed in.",
+    "synced": "Synced",
+    "streakBonus": "Streak bonus ×{{m}}"
+  }
 }

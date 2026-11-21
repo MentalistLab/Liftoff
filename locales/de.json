@@ -15,13 +15,25 @@
     "streak": "{{count}} Tage Streak",
     "level": "Level {{level}}",
     "today": "Heutiges Training",
-    "start": "Training starten"
+    "start": "Training starten",
+    "greetingAnon": "Bereit fürs Training?",
+    "rest": "Heute ist Ruhetag",
+    "week": "Diese Woche",
+    "workouts": "{{count}} Workouts"
   },
   "train": {
     "title": "Training",
     "plan": "Dein Plan",
     "library": "Übungsbibliothek",
-    "free": "Freies Workout"
+    "free": "Freies Workout",
+    "start": "Starten",
+    "resume": "Workout fortsetzen",
+    "running": "Läuft seit {{time}}",
+    "search": "Übung suchen",
+    "all": "Alle",
+    "noPlan": "Schließe das Onboarding ab, um deinen Plan zu sehen.",
+    "today": "Heute",
+    "freeTitle": "Freies Workout"
   },
   "ranks": {
     "title": "Ränge",
@@ -174,5 +186,43 @@
     "Fr",
     "Sa",
     "So"
-  ]
+  ],
+  "workout": {
+    "finish": "Beenden",
+    "set": "Satz",
+    "prev": "Vorher",
+    "kg": "kg",
+    "reps": "Wdh.",
+    "sec": "Sek.",
+    "addSet": "+ Satz",
+    "addExercise": "+ Übung hinzufügen",
+    "swap": "Tauschen",
+    "remove": "Entfernen",
+    "notes": "Notizen",
+    "notesPh": "Wie lief’s?",
+    "discard": "Verwerfen",
+    "discardQ": "Workout verwerfen? Alle Sätze gehen verloren.",
+    "finishQ": "Workout beenden?",
+    "noSets": "Hake mindestens einen Satz ab.",
+    "rest": "Pause",
+    "skip": "Überspringen",
+    "cancel": "Abbrechen",
+    "done": "Satz erledigt",
+    "pick": "Übung wählen"
+  },
+  "summary": {
+    "title": "Stark gemacht!",
+    "duration": "Dauer",
+    "volume": "Volumen",
+    "sets": "Sätze",
+    "xp": "XP gewonnen",
+    "prs": "Neue Bestleistungen",
+    "ranks": "Rang-Fortschritt",
+    "rankUp": "Rang-Aufstieg!",
+    "first": "Erster Eintrag",
+    "done": "Fertig",
+    "offline": "Offline gespeichert – wird synchronisiert, sobald du online und angemeldet bist.",
+    "synced": "Synchronisiert",
+    "streakBonus": "Streak-Bonus ×{{m}}"
+  }
 }
