@@ -11,3 +11,4 @@ export * from './Stepper';
 export * from './Avatar';
 export * from './DialogHost';
 export * from './Kristo';
+export * from './BackHeader';

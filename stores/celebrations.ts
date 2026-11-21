@@ -7,7 +7,8 @@ export type Celebration =
   | { kind: 'badge'; id: string }
   | { kind: 'league'; result: 'promoted' | 'stayed' | 'demoted'; position: number | null; tier: number }
   | { kind: 'streak_lost'; lost: number }
-  | { kind: 'streak_freeze'; freezes: number };
+  | { kind: 'streak_freeze'; freezes: number }
+  | { kind: 'challenge'; id: string; target: number };
 
 interface State {
   queue: Celebration[];

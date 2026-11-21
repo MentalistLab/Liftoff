@@ -6,6 +6,7 @@ import { buildPlan } from '../../components/onboarding/PlanPreview';
 import { exerciseName } from '../../components/workout/ExercisePicker';
 import { Button, Card, Kristo, ProgressBar, Screen, Text } from '../../components/ui';
 import { useKristoColor } from '../../hooks/useKristoColor';
+import { weeklyChallenges } from '../../lib/challenges';
 import { exerciseBySlug } from '../../lib/standards';
 import { levelFromXp } from '../../lib/xp';
 import { useOnboarding } from '../../stores/onboarding';
@@ -25,6 +26,7 @@ export default function HomeScreen() {
   const { xp, history, active, start, streak } = useWorkout();
   const lp = levelFromXp(xp);
   const kristo = useKristoColor();
+  const challenges = useMemo(() => weeklyChallenges(history, ob.trainingDays.length), [history, ob.trainingDays.length]);
   const dateLabel = new Date().toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' });
   const plan = useMemo(() => (ob.result || ob.completed ? buildPlan(ob, ob.result?.muscleScores) : null), [ob]);
   const todayWd = ((new Date().getDay() + 6) % 7) + 1;
@@ -83,6 +85,22 @@ export default function HomeScreen() {
             );
           })}
         </View>
+      </Card>
+
+      <Card style={{ gap: space[3] }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text variant="overline" color={colors.textSecondary}>{t('feat.challenges')}</Text>
+          <Text variant="caption" color={colors.textSecondary}>{challenges.filter((c) => c.done).length} / {challenges.length}</Text>
+        </View>
+        {challenges.map((c) => (
+          <View key={c.id} style={{ gap: space[1] }} accessible accessibilityLabel={`${t(`feat.ch_${c.id}`, { target: c.target.toLocaleString(lang) })}: ${Math.min(c.value, c.target)} / ${c.target}`}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space[2] }}>
+              <Text variant="caption" color={c.done ? colors.success : colors.text} style={{ flex: 1 }}>{c.done ? '✓ ' : ''}{t(`feat.ch_${c.id}`, { target: c.target.toLocaleString(lang) })}</Text>
+              <Text variant="caption" color={colors.textSecondary} tabular>{Math.min(c.value, c.target).toLocaleString(lang)} / {c.target.toLocaleString(lang)}</Text>
+            </View>
+            <ProgressBar value={c.value / c.target} color={c.done ? colors.success : colors.primary} height={6} />
+          </View>
+        ))}
       </Card>
 
       <Card style={{ gap: space[3], backgroundColor: colors.primarySoft, borderColor: colors.primaryLine }}>

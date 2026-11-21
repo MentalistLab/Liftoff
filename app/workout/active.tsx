@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExercisePicker, exerciseName } from '../../components/workout/ExercisePicker';
+import { PlateSheet } from '../../components/workout/PlateSheet';
 import { RestTimer } from '../../components/workout/RestTimer';
 import { SetRow } from '../../components/workout/SetRow';
 import { Button, Card, Text } from '../../components/ui';
 import { confirm, notice } from '../../lib/confirm';
+import { weekStartMs, weeklyChallenges } from '../../lib/challenges';
 import { stepToRank } from '../../lib/leagueView';
 import { computeStats, earnedBadgeIds } from '../../lib/profileStats';
 import { exerciseBySlug } from '../../lib/standards';
@@ -26,6 +28,7 @@ export default function ActiveWorkout() {
   const a = w.active;
   const [now, setNow] = useState(Date.now());
   const [rest, setRest] = useState<{ endsAt: number; total: number } | null>(null);
+  const [plateKg, setPlateKg] = useState<number | null>(null);
   const [picker, setPicker] = useState<{ mode: 'add' } | { mode: 'swap'; index: number } | null>(null);
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
   const closeRest = useCallback(() => setRest(null), []);
@@ -63,6 +66,14 @@ export default function ActiveWorkout() {
     if (best) { const r = stepToRank(best.stepAfter)!; const f = stepToRank(best.stepBefore)!; cel.push({ kind: 'rank_up', slug: best.slug, tier: r.tier, division: r.division, fromTier: f.tier, fromDivision: f.division }); }
     for (const id of summary.newBadges) cel.push({ kind: 'badge', id });
     for (const e of res.streakEvents) if (e.type === 'freeze_earned') cel.push({ kind: 'streak_freeze', freezes: e.freezes });
+    // Wochen-Challenges, die mit diesem Workout geschafft wurden
+    const wk = weekStartMs();
+    const seen = new Set(useWorkout.getState().celebratedChallenges);
+    const fresh = weeklyChallenges(useWorkout.getState().history, ob.trainingDays.length).filter((c) => c.done && !seen.has(`${wk}:${c.id}`));
+    if (fresh.length) {
+      useWorkout.setState((s) => ({ celebratedChallenges: [...s.celebratedChallenges, ...fresh.map((c) => `${wk}:${c.id}`)].slice(-60) }));
+      for (const c of fresh) cel.push({ kind: 'challenge', id: c.id, target: c.target });
+    }
     useCelebrations.getState().push(...cel);
     syncWorkout(res.workout).catch(() => { /* bleibt ausstehend, nächster App-Start */ });
     router.replace({ pathname: '/workout/summary', params: { id: res.workout.id } });
@@ -90,7 +101,12 @@ export default function ActiveWorkout() {
           return (
             <Card key={`${e.slug}-${ei}`} style={{ gap: space[2] }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text variant="h3" color={colors.primary} style={{ flex: 1 }} numberOfLines={1}>{exerciseName(ex, lang, e.slug)}</Text>
+                <Text variant="h3" style={{ flex: 1 }} numberOfLines={2}>{exerciseName(ex, lang, e.slug)}</Text>
+                {ex?.equipment === 'barbell' ? (
+                  <Pressable onPress={() => setPlateKg(e.sets.find((x) => x.weightKg)?.weightKg ?? e.target?.weightKg ?? 60)} accessibilityRole="button" hitSlop={8} style={{ paddingHorizontal: space[2] }}>
+                    <Text variant="caption" color={colors.accent}>{t('feat.plates')}</Text>
+                  </Pressable>
+                ) : null}
                 <Pressable onPress={() => setPicker({ mode: 'swap', index: ei })} accessibilityRole="button" hitSlop={8} style={{ paddingHorizontal: space[2] }}>
                   <Text variant="caption" color={colors.textSecondary}>{t('workout.swap')}</Text>
                 </Pressable>
@@ -131,6 +147,13 @@ export default function ActiveWorkout() {
           );
         })}
         <Button label={t('workout.addExercise')} variant="secondary" onPress={() => setPicker({ mode: 'add' })} />
+        {a.exercises.length ? (
+          <Button label={t('feat.saveTemplate')} variant="ghost" size="m" onPress={async () => {
+            const name = a.title;
+            w.saveTemplate(name, a.exercises.map((e) => ({ slug: e.slug, sets: Math.max(1, e.sets.length) })));
+            await notice(t('feat.templateSaved', { name }));
+          }} />
+        ) : null}
         <View style={{ gap: space[1] }}>
           <Text variant="caption" color={colors.textSecondary}>{t('workout.notes')}</Text>
           <TextInput value={a.notes} onChangeText={w.setNotes} multiline placeholder={t('workout.notesPh')} placeholderTextColor={colors.textTertiary} accessibilityLabel={t('workout.notes')}
@@ -142,6 +165,7 @@ export default function ActiveWorkout() {
         <RestTimer endsAt={rest.endsAt} total={rest.total} onClose={closeRest} labels={{ rest: t('workout.rest'), skip: t('workout.skip') }}
           onAdjust={(d) => setRest((r) => r && { endsAt: Math.max(Date.now(), r.endsAt + d * 1000), total: Math.max(1, r.total + d) })} />
       ) : null}
+      <PlateSheet visible={plateKg != null} initialKg={plateKg ?? 60} onClose={() => setPlateKg(null)} />
       <ExercisePicker visible={!!picker} onClose={() => setPicker(null)}
         onPick={(slug) => { if (picker?.mode === 'swap') w.replaceExercise(picker.index, slug); else w.addExercise(slug); }} />
     </SafeAreaView>

@@ -17,6 +17,8 @@ export interface ServerResult {
   exercises?: { slug: string; isPr?: boolean; rankUps?: number; rank?: { tier: number; division: number; label: string } | null }[];
 }
 
+export interface WorkoutTemplate { id: string; name: string; exercises: { slug: string; sets: number }[]; createdAt: number }
+
 export interface ActiveWorkout {
   id: string; // = client_id beim Sync
   title: string;
@@ -39,6 +41,12 @@ interface WorkoutState {
   streak: StreakState;
   /** Progressions-Vorgaben je Übung fürs nächste Plan-Workout */
   targets: Record<string, SavedTarget>;
+  /** eigene Workout-Vorlagen */
+  templates: WorkoutTemplate[];
+  /** bereits gefeierte Wochen-Challenges ("<Wochenstart>:<id>") */
+  celebratedChallenges: string[];
+  saveTemplate: (name: string, exercises: { slug: string; sets: number }[]) => void;
+  deleteTemplate: (id: string) => void;
 
   start: (title: string, exercises: ({ slug: string } & ExerciseTarget)[], planWeekday?: number | null) => void;
   addExercise: (slug: string) => void;
@@ -65,7 +73,9 @@ const mapEx = (s: WorkoutState, i: number, fn: (e: WorkoutExercise) => WorkoutEx
 export const useWorkout = create<WorkoutState>()(
   persist(
     (set, get) => ({
-      active: null, history: [], bests: {}, lastSets: {}, xp: 0, restDefaultS: 90, streak: EMPTY_STREAK, targets: {},
+      active: null, history: [], bests: {}, lastSets: {}, xp: 0, restDefaultS: 90, streak: EMPTY_STREAK, targets: {}, templates: [], celebratedChallenges: [],
+      saveTemplate: (name, exercises) => set((s) => ({ templates: [{ id: randomUUID(), name, exercises, createdAt: Date.now() }, ...s.templates].slice(0, 30) })),
+      deleteTemplate: (id) => set((s) => ({ templates: s.templates.filter((t) => t.id !== id) })),
 
       start: (title, exercises, planWeekday = null) => set((s) => ({
         active: {

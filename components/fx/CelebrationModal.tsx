@@ -40,6 +40,8 @@ function content(c: Celebration, t: T, lang: 'de' | 'en'): { emoji?: string; bad
     }
     case 'streak_lost':
       return { title: t('cel.streakLost'), sub: t('cel.streakLostSub', { n: c.lost }), color: colors.textSecondary, party: false, pose: 'sleepy' };
+    case 'challenge':
+      return { title: t('feat.challengeDone'), sub: t('feat.challengeDoneSub', { name: t(`feat.ch_${c.id}`, { target: c.target.toLocaleString(lang) }) }), color: colors.primary, party: true, pose: 'cheer' };
     case 'streak_freeze':
       return { title: t('cel.streakFreeze'), sub: t('cel.streakFreezeSub', { n: c.freezes }), color: colors.frost, party: false, pose: 'happy' };
   }

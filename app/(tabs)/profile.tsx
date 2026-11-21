@@ -161,6 +161,8 @@ export default function ProfileScreen() {
         ))}
       </View>
 
+      <Button label={t('feat.history')} variant="secondary" size="m" onPress={() => router.push('/history')} />
+
       {/* Abzeichen */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <Text variant="h2" accessibilityRole="header">{t('profile.badges')}</Text>
