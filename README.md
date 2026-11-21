@@ -153,8 +153,8 @@ eas login                  # mit deinem Expo-Konto
 eas init                   # verknüpft das Projekt, schreibt die projectId in app.json
 ```
 
-**Bundle-ID anpassen:** In `app.json` stehen `com.ascend.app` (iOS `bundleIdentifier`, Android `package`).
-Ersetze das durch etwas Eindeutiges, z. B. `com.deinname.ascend` – es muss weltweit einmalig sein und lässt sich
+**Bundle-ID anpassen:** In `app.json` stehen `com.maxi1233.ascend` (iOS `bundleIdentifier`, Android `package`).
+Ersetze das durch etwas Eindeutiges, z. B. `com.deinname.ascend` (aktuell: `com.maxi1233.ascend`) – es muss weltweit einmalig sein und lässt sich
 nach der ersten Veröffentlichung nicht mehr ändern.
 
 **Supabase-Keys für Builds:** `.env` wird nicht in die Cloud hochgeladen. Einmalig als EAS-Umgebungsvariablen anlegen:

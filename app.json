@@ -10,13 +10,14 @@
     "backgroundColor": "#0B0D12",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.ascend.app",
+      "bundleIdentifier": "com.maxi1233.ascend",
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "infoPlist": {}
     },
     "android": {
-      "package": "com.ascend.app",
+      "package": "com.maxi1233.ascend",
       "adaptiveIcon": {
         "backgroundColor": "#0B0D12",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -62,6 +63,15 @@
       "ios",
       "android",
       "web"
-    ]
+    ],
+    "owner": "maxi1233",
+    "extra": {
+      "router": {
+        "asyncRoutes": false
+      },
+      "eas": {
+        "projectId": "5d5d1fcc-13bd-46f5-9c98-5753521ce3c6"
+      }
+    }
   }
 }
