@@ -86,3 +86,19 @@ die Onboarding-Ränge serverseitig speichern (Edge Function), Freunde einladen.
 
 Noch offen: Teilen-Karte als Bild, Plan-Workouts mit vorgeschlagenen Gewichten aus der Progression,
 Server-Ergebnis nach dem Sync in die Zusammenfassung übernehmen, Streak lokal anzeigen.
+
+## Social-Tab (`app/(tabs)/social.tsx`)
+
+Segmented „Liga | Freunde | Global“. Daten über `hooks/useSocial.ts` (TanStack Query + Supabase-RPCs);
+ohne Anmeldung zeigen alle drei Ansichten klar markierte Beispieldaten (`lib/demoSocial.ts`).
+
+- **Liga:** Liga-Name in Stufen-Farbe, Countdown bis Sonntag 23:59 (Berlin), alle Gruppenmitglieder nach Wochen-XP,
+  grüne Aufstiegszone (Top 7), rote Abstiegszone (letzte 5), eigene Zeile hervorgehoben. Zonen-Logik in
+  `lib/leagueView.ts` (gleiche Regeln wie der Server, inkl. „0 XP steigt nicht auf“, Tests in `__tests__/leagueView.test.ts`).
+- **Freunde:** offene Anfragen annehmen/ablehnen, Freundesliste mit Rang-Rahmen, Streak und Level,
+  Freund suchen per Benutzername + Anfrage senden, Einladungslink teilen, Feed (Workout, PR, Rang-Aufstieg, Abzeichen, Liga)
+  mit Reaktionen 🔥💪👏 (optimistisch, sofort sichtbar).
+- **Global:** Bestenliste je Übung, alle oder eigene Gewichtsklasse, Medaillen für Top 3, relative Stärke + 1RM, eigener Platz.
+- **Realtime:** Liga-Punkte und neue Feed-Einträge aktualisieren sich live (`useSocialRealtime`).
+
+Noch offen: QR-Code zum Hinzufügen, Länder-Bestenliste, Liga-Ergebnis-Modal beim App-Start.

@@ -15,6 +15,8 @@ export const colors = {
   warning: '#FFB020',
   success: '#2BD67B',
   tiers: TIER_COLORS,
+  /** 10 Liga-Stufen: Eisen … Titan */
+  leagues: ['#7A7F8C', '#B8733D', '#C9D1DC', '#F5C451', '#4FD1C5', '#2BD67B', '#5AB8FF', '#B05CFF', '#E05CFF', '#FF4D6D'],
 } as const;
 
 export const gradients = {

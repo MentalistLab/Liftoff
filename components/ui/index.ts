@@ -8,3 +8,4 @@ export * from './Text';
 export * from './Button';
 export * from './OptionCard';
 export * from './Stepper';
+export * from './Avatar';
