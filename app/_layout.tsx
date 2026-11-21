@@ -10,6 +10,7 @@ import { AppState } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CelebrationModal } from '../components/fx/CelebrationModal';
+import { DialogHost } from '../components/ui/DialogHost';
 import { runStartupChecks } from '../lib/startupChecks';
 import { syncPending } from '../lib/sync';
 import { colors } from '../theme';
@@ -43,6 +44,7 @@ export default function RootLayout() {
             <Stack.Screen name="workout/summary" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
           </Stack>
           <CelebrationModal />
+          <DialogHost />
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

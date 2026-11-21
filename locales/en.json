@@ -315,13 +315,14 @@
     "discard": "Discard",
     "discardQ": "Discard workout? All sets will be lost.",
     "finishQ": "Finish workout?",
-    "noSets": "Check off at least one set.",
+    "noSets": "Enter reps or seconds for at least one set and check it off.",
     "rest": "Rest",
     "skip": "Skip",
     "cancel": "Cancel",
     "done": "Set done",
     "pick": "Choose exercise",
-    "target": "Target: {{sets}} × {{reps}}{{weight}}"
+    "target": "Target: {{sets}} × {{reps}}{{weight}}",
+    "takeFilled": "You have not checked off any set yet. Count the filled-in sets and finish the workout?"
   },
   "summary": {
     "title": "Great work!",

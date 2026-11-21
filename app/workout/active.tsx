@@ -7,7 +7,7 @@ import { ExercisePicker, exerciseName } from '../../components/workout/ExerciseP
 import { RestTimer } from '../../components/workout/RestTimer';
 import { SetRow } from '../../components/workout/SetRow';
 import { Button, Card, Text } from '../../components/ui';
-import { confirm } from '../../lib/confirm';
+import { confirm, notice } from '../../lib/confirm';
 import { stepToRank } from '../../lib/leagueView';
 import { computeStats, earnedBadgeIds } from '../../lib/profileStats';
 import { exerciseBySlug } from '../../lib/standards';
@@ -39,14 +39,21 @@ export default function ActiveWorkout() {
   const anyDone = a.exercises.some((e) => e.sets.some(isSetDone));
 
   const finish = async () => {
-    if (!anyDone) { await confirm(t('workout.noSets'), 'OK', t('workout.cancel')); return; }
-    if (!(await confirm(t('workout.finishQ'), t('workout.finish'), t('workout.cancel')))) return;
+    let exercises = a.exercises;
+    if (!anyDone) {
+      // Werte eingetragen, aber nicht abgehakt → anbieten, sie zu übernehmen
+      const filled = a.exercises.some((e) => e.sets.some((s) => (s.reps ?? 0) > 0 || (s.durationS ?? 0) > 0));
+      if (!filled) { await notice(t('workout.noSets')); return; }
+      if (!(await confirm(t('workout.takeFilled'), t('workout.finish'), t('workout.cancel')))) return;
+      exercises = a.exercises.map((e) => ({ ...e, sets: e.sets.map((s) => ({ ...s, done: s.done || (s.reps ?? 0) > 0 || (s.durationS ?? 0) > 0 })) }));
+      exercises.forEach((e, ei) => e.sets.forEach((s) => { if (s.done) w.updateSet(ei, s.id, { done: true }); }));
+    } else if (!(await confirm(t('workout.finishQ'), t('workout.finish'), t('workout.cancel')))) return;
     const ob = useOnboarding.getState();
     const ended = Date.now();
-    const summary = summarize(a.exercises, a.startedAt, ended, w.bests, { gender: ob.gender ?? 'none', bodyweightKg: ob.bodyweightKg, age: ob.age });
+    const summary = summarize(exercises, a.startedAt, ended, w.bests, { gender: ob.gender ?? 'none', bodyweightKg: ob.bodyweightKg, age: ob.age });
     // Abzeichen vorher/nachher vergleichen (lokale Historie)
     const before = earnedBadgeIds(computeStats(w.history));
-    summary.newBadges = [...earnedBadgeIds(computeStats([{ startedAt: a.startedAt, endedAt: ended, exercises: a.exercises, summary }, ...w.history]))].filter((id) => !before.has(id));
+    summary.newBadges = [...earnedBadgeIds(computeStats([{ startedAt: a.startedAt, endedAt: ended, exercises, summary }, ...w.history]))].filter((id) => !before.has(id));
     leaving.current = true;
     const res = w.finish(summary, ended, ob.trainingDays);
     if (!res) return;

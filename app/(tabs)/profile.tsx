@@ -13,7 +13,7 @@ import { useMyRanks } from '../../hooks/useMyRanks';
 import { useSession } from '../../hooks/useSession';
 import { BADGES } from '../../lib/badges';
 import { pickAndUploadAvatar } from '../../lib/avatar';
-import { confirm } from '../../lib/confirm';
+import { confirm, notice } from '../../lib/confirm';
 import { cancelReminders, scheduleReminders } from '../../lib/reminders';
 import { computeStats, earnedBadgeIds, oneRmSeries, trackedLifts, weeklyVolume } from '../../lib/profileStats';
 import { rankLabel, scoreToRank } from '../../lib/ranking';
@@ -106,7 +106,7 @@ export default function ProfileScreen() {
     if (!session) return;
     setUploading(true);
     try { await pickAndUploadAvatar(session.user.id); await server.refetch(); qc.invalidateQueries({ queryKey: ['my-profile'] }); }
-    catch { await confirm(t('profile.photoError'), 'OK', t('workout.cancel')); }
+    catch { await notice(t('profile.photoError')); }
     finally { setUploading(false); }
   };
   const COUNTRIES = ['DE', 'AT', 'CH', 'NL', 'FR', 'IT', 'ES', 'PL', 'GB', 'US', 'TR'];
@@ -116,7 +116,7 @@ export default function ProfileScreen() {
   const deleteAccount = async () => {
     if (!(await confirm(t('profile.deleteQ'), t('profile.delete'), t('workout.cancel'), true))) return;
     const { error } = await supabase.functions.invoke('delete-account', { body: { confirm: 'DELETE' } });
-    if (error) { await confirm(t('profile.error', { msg: error.message }), 'OK', t('workout.cancel')); return; }
+    if (error) { await notice(t('profile.error', { msg: error.message })); return; }
     await supabase.auth.signOut();
     resetLocal(true);
   };

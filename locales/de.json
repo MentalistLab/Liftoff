@@ -315,13 +315,14 @@
     "discard": "Verwerfen",
     "discardQ": "Workout verwerfen? Alle Sätze gehen verloren.",
     "finishQ": "Workout beenden?",
-    "noSets": "Hake mindestens einen Satz ab.",
+    "noSets": "Trag bei mindestens einem Satz Wiederholungen oder Sekunden ein und hake ihn ab.",
     "rest": "Pause",
     "skip": "Überspringen",
     "cancel": "Abbrechen",
     "done": "Satz erledigt",
     "pick": "Übung wählen",
-    "target": "Ziel: {{sets}} × {{reps}}{{weight}}"
+    "target": "Ziel: {{sets}} × {{reps}}{{weight}}",
+    "takeFilled": "Du hast noch keinen Satz abgehakt. Sollen die ausgefüllten Sätze gezählt und das Workout beendet werden?"
   },
   "summary": {
     "title": "Stark gemacht!",
