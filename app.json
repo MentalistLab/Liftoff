@@ -54,6 +54,23 @@
         {
           "color": "#6C5CFF"
         }
+      ],
+      "expo-sharing",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Ascend nutzt die Kamera, um QR-Codes von Freunden zu scannen.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Ascend braucht Zugriff auf deine Fotos, um ein Profilbild auszuw\u00e4hlen.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

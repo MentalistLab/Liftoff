@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { useMyProfile } from '../../hooks/useMyProfile';
 import { useLeaderboard } from '../../hooks/useSocial';
 import { rankLabel, weightClass } from '../../lib/ranking';
 import { ALL_EXERCISES } from '../../lib/standards';
@@ -18,9 +19,11 @@ export function GlobalView() {
   const lang = useSettings((s) => s.language);
   const ob = useOnboarding();
   const [slug, setSlug] = useState('bench_press');
-  const [scope, setScope] = useState<'all' | 'mine'>('all');
+  const [scope, setScope] = useState<'all' | 'mine' | 'country'>('all');
+  const me = useMyProfile();
+  const country = me.data?.country ?? null;
   const myClass = weightClass(ob.gender ?? 'none', ob.bodyweightKg);
-  const { data, isLoading } = useLeaderboard(slug, scope === 'mine' ? myClass : null);
+  const { data, isLoading } = useLeaderboard(slug, scope === 'mine' ? myClass : null, scope === 'country' ? country : null);
 
   return (
     <View style={{ gap: space[3] }}>
@@ -36,7 +39,8 @@ export function GlobalView() {
           );
         })}
       </ScrollView>
-      <SegmentedControl options={[{ value: 'all', label: t('social.allClasses') }, { value: 'mine', label: myClass }]} value={scope} onChange={setScope} />
+      <SegmentedControl options={[{ value: 'all', label: t('social.allClasses') }, { value: 'mine', label: myClass }, ...(me.data ? [{ value: 'country' as const, label: country ?? t('social.countryBoard') }] : [])]} value={scope} onChange={setScope} />
+      {scope === 'country' && !country ? <Text variant="caption" color={colors.textTertiary}>{t('social.noCountryHint')}</Text> : null}
       {data?.myPlace ? <Text variant="caption" color={colors.accent}>{t('social.myPlace', { n: data.myPlace })}</Text> : null}
       {isLoading ? <ActivityIndicator color={colors.primary} /> : !data?.rows.length ? <Card><Text color={colors.textTertiary}>{t('social.noEntries')}</Text></Card> : (
         <View style={{ gap: space[1] }}>
@@ -44,7 +48,7 @@ export function GlobalView() {
             <View key={r.userId} accessible accessibilityLabel={`${r.place}. ${r.username}, ${rankLabel(r, lang)}`}
               style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], paddingVertical: space[2], paddingHorizontal: space[3], borderRadius: radius.md, backgroundColor: r.isMe ? '#6C5CFF2A' : colors.surface }}>
               <Text variant="h3" tabular style={{ width: 32, textAlign: 'center' }}>{MEDALS[r.place - 1] ?? r.place}</Text>
-              <Avatar name={r.username} tier={r.tier} size={34} />
+              <Avatar name={r.username} tier={r.tier} size={34} uri={r.avatarUrl} />
               <View style={{ flex: 1 }}>
                 <Text numberOfLines={1}>{r.username}</Text>
                 <Text variant="caption" color={colors.tiers[r.tier - 1]}>{rankLabel(r, lang)}</Text>

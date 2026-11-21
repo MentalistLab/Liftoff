@@ -1,9 +1,12 @@
 import * as Haptics from 'expo-haptics';
-import * as Linking from 'expo-linking';
+import { router } from 'expo-router';
+import QRCode from 'react-native-qrcode-svg';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, Share, TextInput, View } from 'react-native';
+import { ActivityIndicator, Modal, Platform, Pressable, Share, TextInput, View } from 'react-native';
 import { searchUsers, useFeed, useFriendActions, useFriends, useToggleReaction, type FeedItem, type Reaction } from '../../hooks/useSocial';
+import { useMyProfile } from '../../hooks/useMyProfile';
+import { inviteLink } from '../../lib/invite';
 import { stepToRank } from '../../lib/leagueView';
 import { useSettings } from '../../stores/settings';
 import { colors, fonts, radius, space } from '../../theme';
@@ -41,7 +44,7 @@ function FeedCard({ item, t, lang }: { item: FeedItem; t: T; lang: 'de' | 'en' }
   return (
     <Card style={{ gap: space[3], borderColor: accent }}>
       <View style={{ flexDirection: 'row', gap: space[3], alignItems: 'center' }}>
-        <Avatar name={item.username} tier={rank?.tier} size={40} />
+        <Avatar name={item.username} tier={rank?.tier} size={40} uri={item.avatarUrl} />
         <View style={{ flex: 1 }}>
           <Text variant="h3" numberOfLines={1}>{item.username}</Text>
           <Text variant="caption" color={colors.textTertiary}>{ago(item.createdAt, t)}</Text>
@@ -72,12 +75,14 @@ function AddFriend({ t, demo }: { t: T; demo: boolean }) {
   const [res, setRes] = useState<Awaited<ReturnType<typeof searchUsers>>>([]);
   const [sent, setSent] = useState<Set<string>>(new Set());
   const { request } = useFriendActions();
+  const me = useMyProfile();
+  const [qr, setQr] = useState(false);
   useEffect(() => {
     if (demo || q.trim().length < 2) { setRes([]); return; }
     const id = setTimeout(() => { searchUsers(q).then(setRes).catch(() => setRes([])); }, 300);
     return () => clearTimeout(id);
   }, [q, demo]);
-  const share = () => Share.share({ message: t('social.inviteText', { link: Linking.createURL('/') }) });
+  const share = () => Share.share({ message: t('social.inviteText', { link: inviteLink(me.data?.username) }) });
 
   return (
     <Card style={{ gap: space[3] }}>
@@ -100,6 +105,24 @@ function AddFriend({ t, demo }: { t: T; demo: boolean }) {
         );
       })}
       <Button size="m" variant="secondary" label={t('social.invite')} onPress={share} />
+      {!demo && me.data ? (
+        <View style={{ flexDirection: 'row', gap: space[2] }}>
+          <Button size="m" variant="secondary" label={t('social.myQr')} onPress={() => setQr(true)} style={{ flex: 1 }} />
+          {Platform.OS !== 'web' ? <Button size="m" variant="secondary" label={t('social.scan')} onPress={() => router.push('/scan')} style={{ flex: 1 }} /> : null}
+        </View>
+      ) : null}
+      <Modal visible={qr} transparent animationType="fade" onRequestClose={() => setQr(false)}>
+        <Pressable onPress={() => setQr(false)} style={{ flex: 1, backgroundColor: '#000000B3', alignItems: 'center', justifyContent: 'center', padding: space[6] }}>
+          <View style={{ alignItems: 'center', gap: space[3], padding: space[6], borderRadius: radius.xl, backgroundColor: colors.surface }}>
+            <Text variant="h2">@{me.data?.username}</Text>
+            <View style={{ padding: space[3], backgroundColor: '#FFFFFF', borderRadius: radius.md }}>
+              <QRCode value={inviteLink(me.data?.username)} size={220} color="#0B0D12" backgroundColor="#FFFFFF" />
+            </View>
+            <Text variant="caption" color={colors.textSecondary} style={{ textAlign: 'center' }}>{t('social.qrHint')}</Text>
+            <Button size="m" label={t('social.close')} onPress={() => setQr(false)} style={{ alignSelf: 'stretch' }} />
+          </View>
+        </Pressable>
+      </Modal>
     </Card>
   );
 }
@@ -136,7 +159,7 @@ export function FriendsView() {
         {friends.data?.friends.length ? friends.data.friends.map((f) => (
           <View key={f.id} accessible accessibilityLabel={f.username}
             style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], padding: space[3], borderRadius: radius.md, backgroundColor: colors.surface }}>
-            <Avatar name={f.username} tier={stepToRank(f.rankStep)?.tier} size={40} />
+            <Avatar name={f.username} tier={stepToRank(f.rankStep)?.tier} size={40} uri={f.avatarUrl} />
             <Text style={{ flex: 1 }} numberOfLines={1}>{f.username}</Text>
             <Text variant="caption" color={colors.warning}>{t('social.streak', { n: f.streak })}</Text>
             <Text variant="caption" color={colors.textSecondary}>{t('social.level', { n: f.level })}</Text>

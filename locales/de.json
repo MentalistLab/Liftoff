@@ -12,14 +12,17 @@
   },
   "home": {
     "greeting": "Hallo, {{name}}",
-    "streak": "{{count}} Tage Streak",
     "level": "Level {{level}}",
     "today": "Heutiges Training",
     "start": "Training starten",
     "greetingAnon": "Bereit fürs Training?",
     "rest": "Heute ist Ruhetag",
     "week": "Diese Woche",
-    "workouts": "{{count}} Workouts"
+    "workouts": "{{count}} Workouts",
+    "streak_one": "{{count}} Tag Streak",
+    "streak_other": "{{count}} Tage Streak",
+    "streakZero": "Starte deine Serie mit dem nächsten Training",
+    "freezes": "❄ {{n}} Freeze"
   },
   "train": {
     "title": "Training",
@@ -89,7 +92,21 @@
     "noEntries": "Noch keine Einträge.",
     "ago_m": "vor {{n}} Min",
     "ago_h": "vor {{n}} Std",
-    "ago_d": "vor {{n}} T"
+    "ago_d": "vor {{n}} T",
+    "myQr": "Mein QR-Code",
+    "scan": "QR-Code scannen",
+    "qrHint": "Lass Freunde diesen Code mit Ascend scannen.",
+    "cameraNeeded": "Für das Scannen braucht Ascend Zugriff auf die Kamera.",
+    "allowCamera": "Kamera erlauben",
+    "scanHint": "Richte die Kamera auf den Ascend-Code eines Freundes.",
+    "notAscend": "Das ist kein Ascend-Code.",
+    "adding": "Freund wird hinzugefügt …",
+    "added": "Anfrage an {{name}} gesendet!",
+    "notFound": "Benutzer {{name}} nicht gefunden.",
+    "self": "Das bist du selbst 😄",
+    "close": "Schließen",
+    "countryBoard": "Land",
+    "noCountryHint": "Lege im Profil dein Land fest, um die Länder-Bestenliste zu sehen."
   },
   "profile": {
     "title": "Profil",
@@ -133,7 +150,11 @@
     "cat_social": "Social",
     "cat_league": "Liga",
     "days_one": "{{count}} Tag",
-    "days_other": "{{count}} Tage"
+    "days_other": "{{count}} Tage",
+    "changePhoto": "Profilbild ändern",
+    "photoError": "Profilbild konnte nicht hochgeladen werden.",
+    "country": "Land (für Länder-Bestenliste)",
+    "noCountry": "Keins"
   },
   "muscles": {
     "chest": "Brust",
@@ -261,6 +282,12 @@
     "_lang": {
       "de": "Deutsch",
       "en": "English"
+    },
+    "invite": {
+      "title": "Trainiere mit Freunden",
+      "sub": "Mit Freunden macht es mehr Spaß – und ihr könnt euch in der Liga messen.",
+      "share": "Einladungslink teilen",
+      "skip": "Später"
     }
   },
   "weekdays": [
@@ -293,7 +320,8 @@
     "skip": "Überspringen",
     "cancel": "Abbrechen",
     "done": "Satz erledigt",
-    "pick": "Übung wählen"
+    "pick": "Übung wählen",
+    "target": "Ziel: {{sets}} × {{reps}}{{weight}}"
   },
   "summary": {
     "title": "Stark gemacht!",
@@ -308,6 +336,24 @@
     "done": "Fertig",
     "offline": "Offline gespeichert – wird synchronisiert, sobald du online und angemeldet bist.",
     "synced": "Synchronisiert",
-    "streakBonus": "Streak-Bonus ×{{m}}"
+    "streakBonus": "Streak-Bonus ×{{m}}",
+    "share": "Als Bild teilen",
+    "serverConfirmed": "Vom Server bestätigt: {{xp}} XP · Gesamtrang {{rank}}"
+  },
+  "cel": {
+    "rankUp": "Rang-Aufstieg!",
+    "rankUpSub": "{{name}} ist jetzt {{rank}}",
+    "badge": "Abzeichen freigeschaltet",
+    "league_promoted": "Aufgestiegen!",
+    "league_stayed": "Liga gehalten",
+    "league_demoted": "Abgestiegen",
+    "leagueSub": "Platz {{pos}} – jetzt in der {{name}}-Liga",
+    "leagueSubNoPos": "Du bist jetzt in der {{name}}-Liga",
+    "streakLost": "Streak verloren",
+    "streakLostSub": "Deine Serie von {{n}} Tagen ist gerissen. Heute startest du neu!",
+    "streakFreeze": "Streak-Freeze verdient",
+    "streakFreezeSub": "Ein verpasster Trainingstag wird automatisch überbrückt ({{n}} verfügbar).",
+    "next": "Weiter",
+    "share": "Teilen"
   }
 }

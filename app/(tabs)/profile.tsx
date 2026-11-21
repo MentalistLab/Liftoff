@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Constants from 'expo-constants';
-import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +12,9 @@ import { Avatar, Button, Card, ProgressBar, Screen, SegmentedControl, Stepper, T
 import { useMyRanks } from '../../hooks/useMyRanks';
 import { useSession } from '../../hooks/useSession';
 import { BADGES } from '../../lib/badges';
+import { pickAndUploadAvatar } from '../../lib/avatar';
 import { confirm } from '../../lib/confirm';
+import { cancelReminders, scheduleReminders } from '../../lib/reminders';
 import { computeStats, earnedBadgeIds, oneRmSeries, trackedLifts, weeklyVolume } from '../../lib/profileStats';
 import { rankLabel, scoreToRank } from '../../lib/ranking';
 import { exerciseBySlug } from '../../lib/standards';
@@ -58,7 +59,7 @@ export default function ProfileScreen() {
     queryFn: async () => {
       const uid = session!.user.id;
       const [p, b] = await Promise.all([
-        supabase.from('profiles').select('username, xp, level, longest_streak, is_private').eq('id', uid).single(),
+        supabase.from('profiles').select('username, xp, level, longest_streak, is_private, avatar_url, country').eq('id', uid).single(),
         supabase.from('user_badges').select('badge_id').eq('user_id', uid),
       ]);
       return { profile: p.data, badges: (b.data ?? []).map((x) => x.badge_id as string) };
@@ -94,11 +95,22 @@ export default function ProfileScreen() {
   };
 
   const toggleReminders = async (v: boolean) => {
-    if (v) {
-      try { const r = await Notifications.requestPermissionsAsync(); if (!r.granted) return; } catch { /* Web */ }
-    }
-    settings.setReminders(v);
+    try {
+      if (v) { if (!(await scheduleReminders(ob.trainingDays, language))) return; } else await cancelReminders();
+      settings.setReminders(v);
+    } catch { /* Web / keine Berechtigung */ }
   };
+
+  const [uploading, setUploading] = useState(false);
+  const changePhoto = async () => {
+    if (!session) return;
+    setUploading(true);
+    try { await pickAndUploadAvatar(session.user.id); await server.refetch(); qc.invalidateQueries({ queryKey: ['my-profile'] }); }
+    catch { await confirm(t('profile.photoError'), 'OK', t('workout.cancel')); }
+    finally { setUploading(false); }
+  };
+  const COUNTRIES = ['DE', 'AT', 'CH', 'NL', 'FR', 'IT', 'ES', 'PL', 'GB', 'US', 'TR'];
+  const flag = (cc: string) => String.fromCodePoint(...[...cc].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65));
 
   const signOut = async () => { await supabase.auth.signOut(); qc.clear(); };
   const deleteAccount = async () => {
@@ -120,7 +132,12 @@ export default function ProfileScreen() {
     <Screen>
       {/* Kopf */}
       <View style={{ alignItems: 'center', gap: space[2], paddingTop: space[2] }}>
-        <Avatar name={name} tier={overall?.tier} size={88} />
+        <Pressable disabled={!session || uploading} onPress={changePhoto} accessibilityRole="button" accessibilityLabel={t('profile.changePhoto')}>
+          <Avatar name={name} tier={overall?.tier} size={88} uri={server.data?.profile?.avatar_url} />
+          {session ? <View style={{ position: 'absolute', right: -2, bottom: -2, width: 30, height: 30, borderRadius: radius.full, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.bg }}>
+            <Text variant="caption">{uploading ? '…' : '📷'}</Text>
+          </View> : null}
+        </Pressable>
         <Text variant="h1">{name}</Text>
         <Text variant="caption" color={overall ? colors.tiers[overall.tier - 1] : colors.textTertiary}>
           {overall ? rankLabel(overall, language) : ''}{overall ? ' · ' : ''}{t('profile.level', { n: level.level })}
@@ -184,7 +201,7 @@ export default function ProfileScreen() {
       <Card style={{ gap: space[3] }}>
         <Text variant="caption" color={colors.textSecondary}>{t('profile.language')}</Text>
         <SegmentedControl options={[{ value: 'de', label: 'Deutsch' }, { value: 'en', label: 'English' }]} value={language}
-          onChange={(l) => { settings.setLanguage(l); updateProfile({ language: l }); }} />
+          onChange={(l) => { settings.setLanguage(l); updateProfile({ language: l }); if (settings.remindersEnabled) scheduleReminders(ob.trainingDays, l).catch(() => undefined); }} />
         <Text variant="caption" color={colors.textSecondary}>{t('profile.units')}</Text>
         <SegmentedControl options={[{ value: 'metric', label: 'kg / cm' }, { value: 'imperial', label: 'lbs / ft' }]} value={unitSystem}
           onChange={(u) => { settings.setUnitSystem(u); updateProfile({ unit_system: u }); }} />
@@ -196,6 +213,23 @@ export default function ProfileScreen() {
             onValueChange={async (v) => { settings.setPrivate(v); await updateProfile({ is_private: v }); server.refetch(); }} />
         </Row>
         <Text variant="caption" color={colors.textTertiary}>{ob.trainingDays.map((d) => weekNames[d - 1]).join(' · ')}</Text>
+        {session ? (
+          <>
+            <Text variant="caption" color={colors.textSecondary}>{t('profile.country')}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: space[2] }}>
+              {[null, ...COUNTRIES].map((cc) => {
+                const on = (server.data?.profile?.country ?? null) === cc;
+                return (
+                  <Pressable key={cc ?? 'none'} accessibilityRole="button" accessibilityState={{ selected: on }}
+                    onPress={async () => { await updateProfile({ country: cc }); server.refetch(); qc.invalidateQueries({ queryKey: ['my-profile'] }); }}
+                    style={{ paddingHorizontal: space[3], height: 34, justifyContent: 'center', borderRadius: radius.full, backgroundColor: on ? colors.primary : colors.surface2 }}>
+                    <Text variant="caption">{cc ? `${flag(cc)} ${cc}` : t('profile.noCountry')}</Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </>
+        ) : null}
       </Card>
 
       <Card style={{ gap: space[3] }}>

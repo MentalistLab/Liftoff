@@ -5,7 +5,12 @@ import { exerciseBySlug } from './standards.ts';
 import { workoutXp, type WorkoutXp } from '../supabase/functions/_shared/core/xp.ts';
 
 export interface SetEntry { id: string; weightKg: number | null; reps: number | null; durationS: number | null; done: boolean }
-export interface WorkoutExercise { slug: string; sets: SetEntry[] }
+export interface WorkoutExercise {
+  slug: string;
+  sets: SetEntry[];
+  /** Vorgabe aus dem Plan (Sätze, Wdh.-Bereich, Zielgewicht) */
+  target?: { sets: number; repsMin?: number; repsMax?: number; durationS?: number; weightKg?: number | null };
+}
 export interface PersonalBest { score: number; oneRm: number | null; reps: number | null; durationS: number | null }
 
 export interface ExerciseResult {
@@ -27,6 +32,8 @@ export interface WorkoutSummary {
   rankUps: number;
   exercises: ExerciseResult[];
   xp: WorkoutXp;
+  /** lokal neu freigeschaltete Abzeichen (wird nach summarize gesetzt) */
+  newBadges?: string[];
   /** neue Bestwerte zum Speichern */
   bests: Record<string, PersonalBest>;
 }

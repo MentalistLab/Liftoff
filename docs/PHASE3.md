@@ -125,3 +125,21 @@ Deploy der neuen Function: `supabase functions deploy delete-account`.
 - `app.json`: Bundle-ID `com.ascend.app` (vor dem ersten Store-Build ändern), Benachrichtigungs-Plugin, Exportkontrolle für iOS.
 - `npx expo-doctor`: 20/20; `npx expo export` für iOS und Android baut fehlerfrei; Jest auf die SDK-Version angehoben.
 - `README.md`: Schritt-für-Schritt-Anleitung (Expo Go, Supabase, EAS-APK, TestFlight).
+
+# Vervollständigung
+
+- **Übungskatalog:** 87 Übungen mit Normen (`_shared/core/catalog.ts`), live eingespielt.
+- **Onboarding-Rang auf dem Server:** Edge Function `onboarding-ranks` (einmalig; echte Angaben → Übungsränge, Schätzungen nur in Muskel-/Gesamtrang).
+- **Streak** lokal mit denselben Regeln wie der Server (nur geplante Tage zählen, Freezes), Anzeige auf Home.
+- **Progressive Overload in der App:** Plan-Workouts starten mit Zielgewicht (gemerkter Vorschlag oder aus dem Bestwert) und zeigen „Ziel: Sätze × Wdh. @ kg“ plus Hinweis.
+- **Feier-Modals:** Rang-Aufstieg, neues Abzeichen, Streak-Freeze, Streak verloren, Liga-Ergebnis beim App-Start (`result_seen`).
+- **Zusammenfassung:** Server-Ergebnis nach dem Sync („vom Server bestätigt“), **Teilen-Karte als Bild** (view-shot + Teilen-Menü).
+- **Freunde:** Einladungslink mit Benutzername, eigener **QR-Code**, **QR-Scanner** (expo-camera), Deep Link `ascend://add/<name>`, Onboarding-Schritt „Freunde einladen“.
+- **Profilbild** (Bildauswahl → 400 px JPEG → Storage `avatars/<uid>/`), überall in Social sichtbar.
+- **Länder-Bestenliste** (Land im Profil wählen).
+- **Erinnerungen:** wöchentliche lokale Benachrichtigungen an Trainingstagen (17:30) und Sonntag 18:00 vor Liga-Ende.
+- **Konto löschen** live (`delete-account`).
+- **Demo-Nutzer** für Bestenlisten: `supabase/demo/demo-users.sql` (optional, mit Entfern-Befehl).
+- **Live-E2E-Test** (Anmelden → Onboarding-Rang → Workout → Liga → Freunde → Feed → Bestenliste → privat → löschen): 29/30, der eine Fehler (Feed-Reihenfolge) ist mit Migration `20261121000004_feed_order.sql` behoben, die noch eingespielt werden muss.
+
+Nicht umgesetzt: Apple-/Google-Login (braucht Apple-Developer-Konto bzw. Google-Cloud-Projekt; danach in Supabase → Auth → Providers aktivieren).

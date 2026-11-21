@@ -1,8 +1,7 @@
-import * as Notifications from 'expo-notifications';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, Share, View } from 'react-native';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AccountStep } from '../components/onboarding/AccountStep';
@@ -11,12 +10,15 @@ import { PlanPreview } from '../components/onboarding/PlanPreview';
 import { RankReveal } from '../components/onboarding/RankReveal';
 import { StrengthCheck } from '../components/onboarding/StrengthCheck';
 import { Button, OptionCard, ProgressBar, RankBadge, SegmentedControl, Stepper, Text } from '../components/ui';
+import { inviteLink } from '../lib/invite';
+import { scheduleReminders } from '../lib/reminders';
 import { computeOnboardingRanks } from '../lib/onboardingRanks';
+import { supabase } from '../lib/supabase';
 import { useOnboarding } from '../stores/onboarding';
 import { useSettings } from '../stores/settings';
 import { colors, space } from '../theme';
 
-const STEPS = ['welcome', 'language', 'goal', 'experience', 'gender', 'age', 'weight', 'height', 'location', 'days', 'strength', 'calc', 'reveal', 'plan', 'notify', 'account'] as const;
+const STEPS = ['welcome', 'language', 'goal', 'experience', 'gender', 'age', 'weight', 'height', 'location', 'days', 'strength', 'calc', 'reveal', 'plan', 'notify', 'account', 'invite'] as const;
 type Step = (typeof STEPS)[number];
 const LB = 2.20462;
 
@@ -175,13 +177,35 @@ export default function Onboarding() {
       );
       footer = (
         <View style={{ gap: space[2] }}>
-          <Button label={t('onboarding.notify.allow')} onPress={async () => { try { await Notifications.requestPermissionsAsync(); } catch { /* Web/Expo Go */ } next(); }} />
+          <Button label={t('onboarding.notify.allow')} onPress={async () => { try { if (await scheduleReminders(ob.trainingDays, language)) useSettings.getState().setReminders(true); } catch { /* Web */ } next(); }} />
           <Button label={t('onboarding.notify.later')} variant="ghost" onPress={next} />
         </View>
       );
       break;
+    case 'invite':
+      body = (
+        <View style={{ flex: 1, justifyContent: 'center', gap: space[4], paddingTop: space[14] }}>
+          <Text variant="display" style={{ textAlign: 'center' }}>🤝</Text>
+          {title('invite')}{sub('invite')}
+        </View>
+      );
+      footer = (
+        <View style={{ gap: space[2] }}>
+          <Button label={t('onboarding.invite.share')} onPress={async () => {
+            let name: string | null = null;
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              if (session) name = (await supabase.from('profiles').select('username').eq('id', session.user.id).single()).data?.username ?? null;
+            } catch { /* ohne Konto: allgemeiner Link */ }
+            try { await Share.share({ message: t('social.inviteText', { link: inviteLink(name) }) }); } catch { /* abgebrochen */ }
+            finish();
+          }} />
+          <Button label={t('onboarding.invite.skip')} variant="ghost" onPress={finish} />
+        </View>
+      );
+      break;
     case 'account':
-      body = <>{title('account')}{sub('account')}<AccountStep key={accountMode} onDone={finish} initialMode={accountMode} /></>;
+      body = <>{title('account')}{sub('account')}<AccountStep key={accountMode} onDone={next} initialMode={accountMode} /></>;
       footer = null;
       break;
   }

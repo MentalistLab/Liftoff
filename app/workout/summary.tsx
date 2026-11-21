@@ -1,6 +1,9 @@
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect } from 'react';
+import * as Sharing from 'expo-sharing';
+import React, { useEffect, useRef, useState } from 'react';
+import { Platform } from 'react-native';
+import { captureRef } from 'react-native-view-shot';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import Animated, { FadeInUp, ZoomIn } from 'react-native-reanimated';
@@ -8,6 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Confetti } from '../../components/fx/Confetti';
 import { CountUp } from '../../components/fx/CountUp';
 import { exerciseName } from '../../components/workout/ExercisePicker';
+import { ShareCard, type ShareCardHandle } from '../../components/workout/ShareCard';
+import { useMyRanks } from '../../hooks/useMyRanks';
 import { Button, Card, ProgressBar, RankBadge, Text } from '../../components/ui';
 import { rankLabel, scoreToRank } from '../../lib/ranking';
 import { exerciseBySlug } from '../../lib/standards';
@@ -34,6 +39,18 @@ export default function Summary() {
   const w = useWorkout((s) => s.history.find((h) => h.id === id) ?? s.history[0]);
   const totalXp = useWorkout((s) => s.xp);
   const s = w?.summary;
+  const ranks = useMyRanks();
+  const cardRef = useRef<ShareCardHandle>(null);
+  const [sharing, setSharing] = useState(false);
+  const canShare = Platform.OS !== 'web';
+  const share = async () => {
+    if (!cardRef.current) return;
+    setSharing(true);
+    try {
+      const uri = await captureRef(cardRef, { format: 'png', quality: 1, result: 'tmpfile' });
+      if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Ascend' });
+    } catch { /* abgebrochen */ } finally { setSharing(false); }
+  };
   const celebrate = !!s && (s.rankUps > 0 || s.prs.length > 0);
   useEffect(() => { if (celebrate) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); }, [celebrate]);
 
@@ -95,7 +112,12 @@ export default function Summary() {
           );
         })}
 
-        <Text variant="caption" color={w.synced ? colors.success : colors.textTertiary}>{w.synced ? `✓ ${t('summary.synced')}` : t('summary.offline')}</Text>
+        <ShareCard ref={cardRef} title={w.title} summary={s} lang={lang} overall={ranks.data?.overall ?? null} />
+        {canShare ? <Button label={t('summary.share')} variant="secondary" loading={sharing} onPress={share} /> : null}
+
+        <Text variant="caption" color={w.synced ? colors.success : colors.textTertiary}>
+          {w.server ? `✓ ${t('summary.serverConfirmed', { xp: w.server.xp.total, rank: w.server.overall?.label ?? '–' })}` : w.synced ? `✓ ${t('summary.synced')}` : t('summary.offline')}
+        </Text>
         <Button label={t('summary.done')} onPress={() => router.replace('/home')} />
       </ScrollView>
       {celebrate ? <Confetti /> : null}

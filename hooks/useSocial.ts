@@ -7,16 +7,16 @@ import { useOnboarding } from '../stores/onboarding';
 import { useWorkout } from '../stores/workout';
 
 export type Reaction = 'fire' | 'strong' | 'clap';
-export interface LeagueRow { place: number; userId: string; username: string; rankStep: number | null; weeklyXp: number; isMe: boolean }
+export interface LeagueRow { place: number; userId: string; username: string; avatarUrl?: string | null; rankStep: number | null; weeklyXp: number; isMe: boolean }
 export interface LeagueData { tier: number; rows: LeagueRow[]; demo: boolean }
-export interface Friend { id: string; username: string; rankStep: number | null; streak: number; level: number }
+export interface Friend { id: string; username: string; avatarUrl?: string | null; rankStep: number | null; streak: number; level: number }
 export interface FriendRequest { userId: string; username: string; rankStep: number | null }
 export interface FeedItem {
-  id: string; userId: string; username: string; rankStep: number | null; type: 'workout' | 'pr' | 'rank_up' | 'badge' | 'league';
+  id: string; userId: string; username: string; avatarUrl?: string | null; rankStep: number | null; type: 'workout' | 'pr' | 'rank_up' | 'badge' | 'league';
   payload: Record<string, unknown>; createdAt: string; reactions: Partial<Record<Reaction, number>>; mine: Reaction[];
 }
 export interface LeaderboardRow {
-  place: number; userId: string; username: string; score: number; tier: number; division: number;
+  place: number; userId: string; username: string; avatarUrl?: string | null; score: number; tier: number; division: number;
   best1rm: number | null; bestReps: number | null; relativeStrength: number | null; isMe: boolean;
 }
 
@@ -42,7 +42,7 @@ export function useLeague() {
       if (!data?.length) return null; // noch keiner Gruppe zugeteilt (erstes Workout)
       return {
         tier: data[0].tier, demo: false,
-        rows: data.map((r: Record<string, unknown>) => ({ place: Number(r.place), userId: r.user_id as string, username: r.username as string, rankStep: r.overall_rank as number | null, weeklyXp: r.weekly_xp as number, isMe: r.is_me as boolean })),
+        rows: data.map((r: Record<string, unknown>) => ({ place: Number(r.place), userId: r.user_id as string, username: r.username as string, avatarUrl: r.avatar_url as string | null, rankStep: r.overall_rank as number | null, weeklyXp: r.weekly_xp as number, isMe: r.is_me as boolean })),
       };
     },
     refetchInterval: 60_000,
@@ -68,7 +68,7 @@ export function useFriends() {
       }));
       return {
         demo: false, requests,
-        friends: (f.data ?? []).map((r: Record<string, unknown>) => ({ id: r.id as string, username: r.username as string, rankStep: r.overall_rank as number | null, streak: (r.current_streak as number) ?? 0, level: (r.level as number) ?? 1 })),
+        friends: (f.data ?? []).map((r: Record<string, unknown>) => ({ id: r.id as string, username: r.username as string, avatarUrl: r.avatar_url as string | null, rankStep: r.overall_rank as number | null, streak: (r.current_streak as number) ?? 0, level: (r.level as number) ?? 1 })),
       };
     },
   });
@@ -84,7 +84,7 @@ export function useFeed() {
       return {
         demo: false,
         items: (data ?? []).map((r: Record<string, unknown>) => ({
-          id: r.id as string, userId: r.user_id as string, username: r.username as string, rankStep: r.overall_rank as number | null,
+          id: r.id as string, userId: r.user_id as string, username: r.username as string, avatarUrl: r.avatar_url as string | null, rankStep: r.overall_rank as number | null,
           type: r.type as FeedItem['type'], payload: (r.payload as Record<string, unknown>) ?? {}, createdAt: r.created_at as string,
           reactions: (r.reactions as FeedItem['reactions']) ?? {}, mine: (r.my_reactions as Reaction[]) ?? [],
         })),
@@ -93,20 +93,20 @@ export function useFeed() {
   });
 }
 
-export function useLeaderboard(slug: string, weightClass: string | null) {
+export function useLeaderboard(slug: string, weightClass: string | null, country: string | null = null) {
   return useQuery({
-    queryKey: ['leaderboard', slug, weightClass],
+    queryKey: ['leaderboard', slug, weightClass, country],
     queryFn: async (): Promise<{ rows: LeaderboardRow[]; myPlace: number | null; demo: boolean }> => {
       if (!(await me())) return { rows: demoLeaderboard(slug, useOnboarding.getState().bodyweightKg), myPlace: null, demo: true };
       const [lb, pos] = await Promise.all([
-        supabase.rpc('get_leaderboard', { p_exercise_slug: slug, p_weight_class: weightClass, p_limit: 50 }),
-        supabase.rpc('get_my_leaderboard_position', { p_exercise_slug: slug, p_weight_class: weightClass }),
+        supabase.rpc('get_leaderboard', { p_exercise_slug: slug, p_weight_class: weightClass, p_country: country, p_limit: 50 }),
+        supabase.rpc('get_my_leaderboard_position', { p_exercise_slug: slug, p_weight_class: weightClass, p_country: country }),
       ]);
       if (lb.error) throw lb.error;
       return {
         demo: false, myPlace: (pos.data as number | null) ?? null,
         rows: (lb.data ?? []).map((r: Record<string, unknown>) => ({
-          place: Number(r.place), userId: r.user_id as string, username: r.username as string, score: Number(r.score), tier: r.tier as number, division: r.division as number,
+          place: Number(r.place), userId: r.user_id as string, username: r.username as string, avatarUrl: r.avatar_url as string | null, score: Number(r.score), tier: r.tier as number, division: r.division as number,
           best1rm: r.best_1rm == null ? null : Number(r.best_1rm), bestReps: (r.best_reps as number | null) ?? null,
           relativeStrength: r.relative_strength == null ? null : Number(r.relative_strength), isMe: r.is_me as boolean,
         })),

@@ -3,7 +3,8 @@
 import { supabase, supabaseConfigured } from './supabase';
 import { useOnboarding } from '../stores/onboarding';
 import { useSettings } from '../stores/settings';
-import { useWorkout, type FinishedWorkout } from '../stores/workout';
+import { useCelebrations } from '../stores/celebrations';
+import { useWorkout, type FinishedWorkout, type ServerResult } from '../stores/workout';
 
 function localDate(d = new Date()): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -50,7 +51,14 @@ export async function syncWorkout(w: FinishedWorkout): Promise<boolean> {
   const fin = await supabase.functions.invoke('finish-workout', { body: { workoutId, today: localDate(new Date(w.endedAt)) } });
   const status = (fin.error as { context?: { status?: number } } | null)?.context?.status;
   if (fin.error && status !== 409) throw fin.error;
-  useWorkout.getState().markSynced(w.id);
+  const server = fin.error ? undefined : (fin.data as ServerResult);
+  useWorkout.getState().markSynced(w.id, server);
+  // Abzeichen, die nur der Server kennt (z. B. Freunde, Liga), nachträglich feiern
+  if (server?.badges?.length) {
+    const local = new Set(w.summary.newBadges ?? []);
+    const extra = server.badges.filter((id) => !local.has(id));
+    if (extra.length) useCelebrations.getState().push(...extra.map((id) => ({ kind: 'badge' as const, id })));
+  }
   return true;
 }
 

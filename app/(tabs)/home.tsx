@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +11,7 @@ import { levelFromXp } from '../../lib/xp';
 import { useOnboarding } from '../../stores/onboarding';
 import { useSettings } from '../../stores/settings';
 import { useWorkout } from '../../stores/workout';
-import { colors, radius, space } from '../../theme';
+import { colors, gradients, radius, space } from '../../theme';
 
 function weekStart(d = new Date()) {
   const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x;
@@ -21,7 +22,7 @@ export default function HomeScreen() {
   const t = tr as unknown as (k: string, o?: object) => string;
   const lang = useSettings((s) => s.language);
   const ob = useOnboarding();
-  const { xp, history, active, start } = useWorkout();
+  const { xp, history, active, start, streak } = useWorkout();
   const lp = levelFromXp(xp);
   const plan = useMemo(() => (ob.result ? buildPlan(ob, ob.result.muscleScores) : null), [ob]);
   const todayWd = ((new Date().getDay() + 6) % 7) + 1;
@@ -34,6 +35,19 @@ export default function HomeScreen() {
   return (
     <Screen>
       <Text variant="h1">{t('home.greetingAnon')}</Text>
+
+      {streak.current > 0 ? (
+        <LinearGradient colors={gradients.streak} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={{ borderRadius: radius.lg, padding: space[4], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Text variant="h2" accessibilityRole="text">🔥 {t('home.streak', { count: streak.current })}</Text>
+          {streak.freezes > 0 ? <Text variant="caption">{t('home.freezes', { n: streak.freezes })}</Text> : null}
+        </LinearGradient>
+      ) : (
+        <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
+          <Text variant="h2">🔥</Text>
+          <Text color={colors.textSecondary} style={{ flex: 1 }}>{t('home.streakZero')}</Text>
+        </Card>
+      )}
 
       <Card style={{ gap: space[2] }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -71,7 +85,7 @@ export default function HomeScreen() {
             <Text variant="h3">{today.title}</Text>
             <Text variant="caption" color={colors.textSecondary}>{today.exercises.map((e) => exerciseName(exerciseBySlug(e.slug), lang, e.slug)).join(' · ')}</Text>
             <Button label={active ? t('train.resume') : t('home.start')} onPress={() => {
-              if (!active) start(today.title, today.exercises.map((e) => ({ slug: e.slug, sets: e.sets })), todayWd);
+              if (!active) start(today.title, today.exercises.map((e) => ({ slug: e.slug, sets: e.sets, repsMin: e.repsMin, repsMax: e.repsMax, durationS: e.durationS })), todayWd);
               router.push('/workout/active');
             }} />
           </>

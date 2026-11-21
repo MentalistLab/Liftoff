@@ -8,7 +8,10 @@ import { RestTimer } from '../../components/workout/RestTimer';
 import { SetRow } from '../../components/workout/SetRow';
 import { Button, Card, Text } from '../../components/ui';
 import { confirm } from '../../lib/confirm';
+import { stepToRank } from '../../lib/leagueView';
+import { computeStats, earnedBadgeIds } from '../../lib/profileStats';
 import { exerciseBySlug } from '../../lib/standards';
+import { useCelebrations, type Celebration } from '../../stores/celebrations';
 import { syncWorkout } from '../../lib/sync';
 import { formatDuration, isSetDone, summarize } from '../../lib/workoutSummary';
 import { useOnboarding } from '../../stores/onboarding';
@@ -41,10 +44,21 @@ export default function ActiveWorkout() {
     const ob = useOnboarding.getState();
     const ended = Date.now();
     const summary = summarize(a.exercises, a.startedAt, ended, w.bests, { gender: ob.gender ?? 'none', bodyweightKg: ob.bodyweightKg, age: ob.age });
+    // Abzeichen vorher/nachher vergleichen (lokale Historie)
+    const before = earnedBadgeIds(computeStats(w.history));
+    summary.newBadges = [...earnedBadgeIds(computeStats([{ startedAt: a.startedAt, endedAt: ended, exercises: a.exercises, summary }, ...w.history]))].filter((id) => !before.has(id));
     leaving.current = true;
-    const done = w.finish(summary, ended);
-    if (done) syncWorkout(done).catch(() => { /* bleibt ausstehend, nächster App-Start */ });
-    router.replace({ pathname: '/workout/summary', params: { id: done?.id } });
+    const res = w.finish(summary, ended, ob.trainingDays);
+    if (!res) return;
+    const cel: Celebration[] = [];
+    const best = [...summary.exercises].filter((r) => r.stepBefore != null && r.stepAfter != null && r.stepAfter > r.stepBefore)
+      .sort((x, y) => y.stepAfter! - x.stepAfter!)[0];
+    if (best) { const r = stepToRank(best.stepAfter)!; cel.push({ kind: 'rank_up', slug: best.slug, tier: r.tier, division: r.division }); }
+    for (const id of summary.newBadges) cel.push({ kind: 'badge', id });
+    for (const e of res.streakEvents) if (e.type === 'freeze_earned') cel.push({ kind: 'streak_freeze', freezes: e.freezes });
+    useCelebrations.getState().push(...cel);
+    syncWorkout(res.workout).catch(() => { /* bleibt ausstehend, nächster App-Start */ });
+    router.replace({ pathname: '/workout/summary', params: { id: res.workout.id } });
   };
   const discard = async () => {
     if (await confirm(t('workout.discardQ'), t('workout.discard'), t('workout.cancel'), true)) { leaving.current = true; w.discard(); router.replace('/train'); }
@@ -77,6 +91,16 @@ export default function ActiveWorkout() {
                   <Text variant="caption" color={colors.danger}>{t('workout.remove')}</Text>
                 </Pressable>
               </View>
+ {e.target ? (
+                <Text variant="caption" color={colors.accent}>
+                  {t('workout.target', {
+                    sets: e.target.sets,
+                    reps: e.target.durationS ? `${e.target.durationS} s` : `${e.target.repsMin}–${e.target.repsMax}`,
+                    weight: e.target.weightKg ? ` @ ${e.target.weightKg} kg` : '',
+                  })}
+                  {w.targets[e.slug] ? ` · ${lang === 'de' ? w.targets[e.slug].noteDe : w.targets[e.slug].noteEn}` : ''}
+                </Text>
+              ) : null}
               <View style={{ flexDirection: 'row', gap: space[2], paddingHorizontal: space[1] }}>
                 <Text variant="overline" color={colors.textTertiary} style={{ width: 28, textAlign: 'center' }} accessibilityLabel={t('workout.set')}>#</Text>
                 <Text variant="overline" color={colors.textTertiary} style={{ width: 56, textAlign: 'center' }}>{t('workout.prev')}</Text>

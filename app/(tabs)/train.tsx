@@ -28,7 +28,7 @@ export default function TrainScreen() {
   const go = () => router.push('/workout/active');
   const startDay = (wd: number) => {
     const d = plan!.days.find((x) => x.weekday === wd)!;
-    start(d.title, d.exercises.map((e) => ({ slug: e.slug, sets: e.sets, reps: e.repsMax, durationS: e.durationS })), wd);
+    start(d.title, d.exercises.map((e) => ({ slug: e.slug, sets: e.sets, repsMin: e.repsMin, repsMax: e.repsMax, durationS: e.durationS })), wd);
     go();
   };
 

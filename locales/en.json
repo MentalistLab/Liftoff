@@ -12,14 +12,17 @@
   },
   "home": {
     "greeting": "Hi, {{name}}",
-    "streak": "{{count}}-day streak",
     "level": "Level {{level}}",
     "today": "Today's workout",
     "start": "Start workout",
     "greetingAnon": "Ready to train?",
     "rest": "Rest day today",
     "week": "This week",
-    "workouts": "{{count}} workouts"
+    "workouts": "{{count}} workouts",
+    "streak_one": "{{count}}-day streak",
+    "streak_other": "{{count}}-day streak",
+    "streakZero": "Start your streak with your next workout",
+    "freezes": "❄ {{n}} freeze"
   },
   "train": {
     "title": "Train",
@@ -89,7 +92,21 @@
     "noEntries": "No entries yet.",
     "ago_m": "{{n}}m ago",
     "ago_h": "{{n}}h ago",
-    "ago_d": "{{n}}d ago"
+    "ago_d": "{{n}}d ago",
+    "myQr": "My QR code",
+    "scan": "Scan QR code",
+    "qrHint": "Let friends scan this code with Ascend.",
+    "cameraNeeded": "Ascend needs camera access to scan.",
+    "allowCamera": "Allow camera",
+    "scanHint": "Point the camera at a friend’s Ascend code.",
+    "notAscend": "That is not an Ascend code.",
+    "adding": "Adding friend …",
+    "added": "Request sent to {{name}}!",
+    "notFound": "User {{name}} not found.",
+    "self": "That is you 😄",
+    "close": "Close",
+    "countryBoard": "Country",
+    "noCountryHint": "Set your country in your profile to see the country leaderboard."
   },
   "profile": {
     "title": "Profile",
@@ -133,7 +150,11 @@
     "cat_social": "Social",
     "cat_league": "League",
     "days_one": "{{count}} day",
-    "days_other": "{{count}} days"
+    "days_other": "{{count}} days",
+    "changePhoto": "Change profile photo",
+    "photoError": "Could not upload the profile photo.",
+    "country": "Country (for country leaderboard)",
+    "noCountry": "None"
   },
   "muscles": {
     "chest": "Chest",
@@ -261,6 +282,12 @@
     "_lang": {
       "de": "Deutsch",
       "en": "English"
+    },
+    "invite": {
+      "title": "Train with friends",
+      "sub": "It is more fun with friends – and you can compete in the league.",
+      "share": "Share invite link",
+      "skip": "Later"
     }
   },
   "weekdays": [
@@ -293,7 +320,8 @@
     "skip": "Skip",
     "cancel": "Cancel",
     "done": "Set done",
-    "pick": "Choose exercise"
+    "pick": "Choose exercise",
+    "target": "Target: {{sets}} × {{reps}}{{weight}}"
   },
   "summary": {
     "title": "Great work!",
@@ -308,6 +336,24 @@
     "done": "Done",
     "offline": "Saved offline – syncs once you are online and signed in.",
     "synced": "Synced",
-    "streakBonus": "Streak bonus ×{{m}}"
+    "streakBonus": "Streak bonus ×{{m}}",
+    "share": "Share as image",
+    "serverConfirmed": "Confirmed by server: {{xp}} XP · overall rank {{rank}}"
+  },
+  "cel": {
+    "rankUp": "Rank up!",
+    "rankUpSub": "{{name}} is now {{rank}}",
+    "badge": "Badge unlocked",
+    "league_promoted": "Promoted!",
+    "league_stayed": "League kept",
+    "league_demoted": "Demoted",
+    "leagueSub": "Place {{pos}} – now in the {{name}} League",
+    "leagueSubNoPos": "You are now in the {{name}} League",
+    "streakLost": "Streak lost",
+    "streakLostSub": "Your {{n}}-day streak ended. Start fresh today!",
+    "streakFreeze": "Streak freeze earned",
+    "streakFreezeSub": "One missed training day is covered automatically ({{n}} available).",
+    "next": "Continue",
+    "share": "Share"
   }
 }
