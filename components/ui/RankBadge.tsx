@@ -1,4 +1,6 @@
 // Originelles Rang-Emblem: sechseckiger Kristall in Rang-Farbe, Division als Balken.
+// Bewusst mit den Ur-Farben der ersten Version – unabhängig vom App-Design.
+const ORIGINAL = { rim: '#FFFFFF', inner: '#0B0D12', emptyBar: '#1E2230' };
 import React from 'react';
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import { DIVISION_LABELS, TIER_NAMES } from '../../lib/ranking';
@@ -15,11 +17,11 @@ export function RankBadge({ tier, division, size = 48, lang = 'de' }: { tier: nu
           <Stop offset="1" stopColor={c} stopOpacity={0.55} />
         </LinearGradient>
       </Defs>
-      <Path d="M50 4 92 28 92 72 50 96 8 72 8 28Z" fill={`url(#${id})`} stroke={colors.text} strokeOpacity={0.25} strokeWidth={3} />
-      <Path d="M50 18 78 34 78 66 50 82 22 66 22 34Z" fill={colors.bg} fillOpacity={0.35} />
+      <Path d="M50 4 92 28 92 72 50 96 8 72 8 28Z" fill={`url(#${id})`} stroke={ORIGINAL.rim} strokeOpacity={0.25} strokeWidth={3} />
+      <Path d="M50 18 78 34 78 66 50 82 22 66 22 34Z" fill={ORIGINAL.inner} fillOpacity={0.35} />
       <Path d="M50 26 64 50 50 74 36 50Z" fill={c} />
       {[0, 1, 2].map((i) => (
-        <Rect key={i} x={29 + i * 15} y={104} width={12} height={7} rx={2} fill={i < division ? c : colors.surface2} />
+        <Rect key={i} x={29 + i * 15} y={104} width={12} height={7} rx={2} fill={i < division ? c : ORIGINAL.emptyBar} />
       ))}
     </Svg>
   );
