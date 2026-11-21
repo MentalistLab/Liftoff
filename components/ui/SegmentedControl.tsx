@@ -19,7 +19,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
             onPress={() => { if (!active) { Haptics.selectionAsync(); onChange(o.value); } }}
             style={{ flex: 1, minHeight: 36, alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm, backgroundColor: active ? colors.primary : 'transparent' }}
           >
-            <Text variant="caption" color={active ? colors.text : colors.textSecondary}>{o.label}</Text>
+            <Text variant="caption" color={active ? colors.onPrimary : colors.textSecondary}>{o.label}</Text>
           </Pressable>
         );
       })}

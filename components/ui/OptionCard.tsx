@@ -17,7 +17,7 @@ export function OptionCard({ title, subtitle, emoji, selected, onPress, compact 
         flexDirection: 'row', alignItems: 'center', gap: space[3],
         minHeight: compact ? 52 : 72, padding: space[4], borderRadius: radius.lg, borderWidth: 2,
         borderColor: selected ? colors.primary : colors.border,
-        backgroundColor: selected ? '#6C5CFF22' : colors.surface,
+        backgroundColor: selected ? colors.primarySoft : colors.surface,
         transform: [{ scale: pressed ? 0.98 : 1 }],
       })}
     >

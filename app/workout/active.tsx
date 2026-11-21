@@ -60,7 +60,7 @@ export default function ActiveWorkout() {
     const cel: Celebration[] = [];
     const best = [...summary.exercises].filter((r) => r.stepBefore != null && r.stepAfter != null && r.stepAfter > r.stepBefore)
       .sort((x, y) => y.stepAfter! - x.stepAfter!)[0];
-    if (best) { const r = stepToRank(best.stepAfter)!; cel.push({ kind: 'rank_up', slug: best.slug, tier: r.tier, division: r.division }); }
+    if (best) { const r = stepToRank(best.stepAfter)!; const f = stepToRank(best.stepBefore)!; cel.push({ kind: 'rank_up', slug: best.slug, tier: r.tier, division: r.division, fromTier: f.tier, fromDivision: f.division }); }
     for (const id of summary.newBadges) cel.push({ kind: 'badge', id });
     for (const e of res.streakEvents) if (e.type === 'freeze_earned') cel.push({ kind: 'streak_freeze', freezes: e.freezes });
     useCelebrations.getState().push(...cel);

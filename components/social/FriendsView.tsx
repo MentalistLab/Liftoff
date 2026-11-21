@@ -59,7 +59,7 @@ function FeedCard({ item, t, lang }: { item: FeedItem; t: T; lang: 'de' | 'en' }
             <Pressable key={r.key} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`${r.emoji} ${n}`}
               onPress={() => { Haptics.selectionAsync(); toggle.mutate({ item, reaction: r.key }); }}
               style={{ flexDirection: 'row', gap: space[1], alignItems: 'center', paddingHorizontal: space[3], height: 34, borderRadius: radius.full,
-                backgroundColor: on ? '#6C5CFF33' : colors.surface2, borderWidth: 1, borderColor: on ? colors.primary : 'transparent' }}>
+                backgroundColor: on ? colors.primarySoft : colors.surface2, borderWidth: 1, borderColor: on ? colors.primary : 'transparent' }}>
               <Text>{r.emoji}</Text>
               {n > 0 ? <Text variant="caption" tabular>{n}</Text> : null}
             </Pressable>

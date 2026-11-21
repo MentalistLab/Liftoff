@@ -1,17 +1,17 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { buildPlan } from '../../components/onboarding/PlanPreview';
 import { exerciseName } from '../../components/workout/ExercisePicker';
-import { Button, Card, ProgressBar, Screen, Text } from '../../components/ui';
+import { Button, Card, Kristo, ProgressBar, Screen, Text } from '../../components/ui';
+import { useKristoColor } from '../../hooks/useKristoColor';
 import { exerciseBySlug } from '../../lib/standards';
 import { levelFromXp } from '../../lib/xp';
 import { useOnboarding } from '../../stores/onboarding';
 import { useSettings } from '../../stores/settings';
 import { useWorkout } from '../../stores/workout';
-import { colors, gradients, radius, space } from '../../theme';
+import { colors, radius, space } from '../../theme';
 
 function weekStart(d = new Date()) {
   const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x;
@@ -24,6 +24,8 @@ export default function HomeScreen() {
   const ob = useOnboarding();
   const { xp, history, active, start, streak } = useWorkout();
   const lp = levelFromXp(xp);
+  const kristo = useKristoColor();
+  const dateLabel = new Date().toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' });
   const plan = useMemo(() => (ob.result || ob.completed ? buildPlan(ob, ob.result?.muscleScores) : null), [ob]);
   const todayWd = ((new Date().getDay() + 6) % 7) + 1;
   const today = plan?.days.find((d) => d.weekday === todayWd);
@@ -34,14 +36,19 @@ export default function HomeScreen() {
 
   return (
     <Screen>
-      <Text variant="h1">{t('home.greetingAnon')}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
+        <Kristo color={kristo} pose={streak.current === 0 && history.length > 0 ? 'sleepy' : 'happy'} size={64} />
+        <View style={{ flex: 1 }}>
+          <Text variant="caption" color={colors.textSecondary}>{dateLabel}</Text>
+          <Text variant="h1">{t('home.greetingAnon')}</Text>
+        </View>
+      </View>
 
       {streak.current > 0 ? (
-        <LinearGradient colors={gradients.streak} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={{ borderRadius: radius.lg, padding: space[4], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Text variant="h2" accessibilityRole="text">🔥 {t('home.streak', { count: streak.current })}</Text>
-          {streak.freezes > 0 ? <Text variant="caption">{t('home.freezes', { n: streak.freezes })}</Text> : null}
-        </LinearGradient>
+        <View style={{ borderRadius: radius.lg, padding: space[4], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.streakSoft, borderWidth: 1, borderColor: '#5A3418' }}>
+          <Text variant="h2" color="#FFB27A" accessibilityRole="text">🔥 {t('home.streak', { count: streak.current })}</Text>
+          {streak.freezes > 0 ? <Text variant="caption" color={colors.frost}>{t('home.freezes', { n: streak.freezes })}</Text> : null}
+        </View>
       ) : (
         <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
           <Text variant="h2">🔥</Text>
@@ -69,8 +76,8 @@ export default function HomeScreen() {
               <View key={n} accessible accessibilityLabel={`${n}${done ? ' ✓' : ''}`} style={{ alignItems: 'center', gap: space[1] }}>
                 <Text variant="caption" color={isToday ? colors.text : colors.textTertiary}>{n}</Text>
                 <View style={{ width: 34, height: 34, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center',
-                  backgroundColor: done ? colors.success : 'transparent', borderWidth: 2, borderColor: done ? colors.success : planned ? colors.primary : colors.border }}>
-                  {done ? <Text variant="caption" color={colors.bg}>✓</Text> : null}
+                  backgroundColor: done ? colors.primary : 'transparent', borderWidth: 2, borderColor: done ? colors.primary : isToday ? colors.text : planned ? '#2E9BE0' : colors.border }}>
+                  {done ? <Text variant="caption" color={colors.onPrimary}>✓</Text> : null}
                 </View>
               </View>
             );
@@ -78,8 +85,8 @@ export default function HomeScreen() {
         </View>
       </Card>
 
-      <Card style={{ gap: space[3] }}>
-        <Text variant="overline" color={colors.textSecondary}>{t('home.today')}</Text>
+      <Card style={{ gap: space[3], backgroundColor: colors.primarySoft, borderColor: colors.primaryLine }}>
+        <Text variant="overline" color={colors.accent}>{t('home.today')}</Text>
         {today ? (
           <>
             <Text variant="h3">{today.title}</Text>

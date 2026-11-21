@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { formatDuration } from '../../lib/workoutSummary';
 import { colors, radius, shadow, space } from '../../theme';
-import { Button, Text } from '../ui';
+import { Button, Kristo, Text } from '../ui';
 
 export function RestTimer({ endsAt, total, onAdjust, onClose, labels }: {
   endsAt: number; total: number; onAdjust: (deltaS: number) => void; onClose: () => void;
@@ -28,12 +28,15 @@ export function RestTimer({ endsAt, total, onAdjust, onClose, labels }: {
       style={[{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: insets.bottom + space[4], padding: space[5], gap: space[4], alignItems: 'center', backgroundColor: colors.surface, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, borderWidth: 1, borderColor: colors.border }, shadow.card]}>
       <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border }} />
       <Text variant="overline" color={colors.textSecondary}>{labels.rest}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[4] }}>
+      <Kristo pose="focus" size={80} />
       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
         <Svg width={128} height={128} style={{ transform: [{ rotate: '-90deg' }] }}>
           <Circle cx={64} cy={64} r={R} stroke={colors.surface2} strokeWidth={8} fill="none" />
           <Circle cx={64} cy={64} r={R} stroke={colors.accent} strokeWidth={8} fill="none" strokeLinecap="round" strokeDasharray={`${C} ${C}`} strokeDashoffset={C * (1 - frac)} />
         </Svg>
         <Text variant="h1" tabular style={{ position: 'absolute' }} accessibilityLabel={`${left}`}>{formatDuration(left)}</Text>
+      </View>
       </View>
       <View style={{ flexDirection: 'row', gap: space[3], alignSelf: 'stretch' }}>
         {[-15, 15].map((d) => (

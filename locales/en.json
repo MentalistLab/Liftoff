@@ -355,6 +355,7 @@
     "streakFreeze": "Streak freeze earned",
     "streakFreezeSub": "One missed training day is covered automatically ({{n}} available).",
     "next": "Continue",
-    "share": "Share"
+    "share": "Share",
+    "kristoCheers": "Kristo cheers with you!"
   }
 }

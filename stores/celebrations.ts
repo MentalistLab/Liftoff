@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 
 export type Celebration =
-  | { kind: 'rank_up'; slug: string; tier: number; division: number }
+  | { kind: 'rank_up'; slug: string; tier: number; division: number; fromTier?: number; fromDivision?: number }
   | { kind: 'badge'; id: string }
   | { kind: 'league'; result: 'promoted' | 'stayed' | 'demoted'; position: number | null; tier: number }
   | { kind: 'streak_lost'; lost: number }

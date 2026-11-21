@@ -47,7 +47,7 @@ export function LeagueView() {
               <Animated.View entering={FadeInDown.delay(Math.min(i, 12) * 25)}
                 accessible accessibilityLabel={`${r.place}. ${r.isMe ? t('social.you') : r.username}, ${r.weeklyXp} XP`}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], paddingVertical: space[2], paddingHorizontal: space[3], borderRadius: radius.md,
-                  backgroundColor: r.isMe ? '#6C5CFF2A' : colors.surface, borderLeftWidth: 3, borderLeftColor: zone === 'stay' ? colors.border : ZONE_COLOR[zone] }}>
+                  backgroundColor: r.isMe ? colors.primarySoft : colors.surface, borderLeftWidth: 3, borderLeftColor: zone === 'stay' ? colors.border : ZONE_COLOR[zone] }}>
                 <Text variant="h3" tabular style={{ width: 28, textAlign: 'right' }} color={zone === 'promote' ? colors.success : zone === 'demote' ? colors.danger : colors.textSecondary}>{r.place}</Text>
                 <Avatar name={r.username} tier={rank?.tier} size={34} uri={r.avatarUrl} />
                 <Text variant="body" style={{ flex: 1 }} numberOfLines={1}>{r.isMe ? t('social.you') : r.username}</Text>

@@ -3,7 +3,7 @@ import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import { colors } from '../../theme';
 
-const PALETTE = [colors.primary, colors.accent, colors.warning, colors.success, colors.danger, '#B05CFF'];
+const PALETTE = [colors.primary, colors.accent, colors.warning, colors.success, colors.danger, colors.frost, colors.streak];
 
 function Piece({ x, delay, color, w, h, drift, spin, height }: { x: number; delay: number; color: string; w: number; h: number; drift: number; spin: number; height: number }) {
   const t = useSharedValue(0);

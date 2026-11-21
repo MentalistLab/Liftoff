@@ -34,7 +34,7 @@ export function GlobalView() {
           return (
             <Pressable key={e.slug} onPress={() => setSlug(e.slug)} accessibilityRole="button" accessibilityState={{ selected: on }}
               style={{ paddingHorizontal: space[3], height: 34, justifyContent: 'center', borderRadius: radius.full, backgroundColor: on ? colors.primary : colors.surface2 }}>
-              <Text variant="caption" color={on ? colors.text : colors.textSecondary}>{exerciseName(e, lang)}</Text>
+              <Text variant="caption" color={on ? colors.onPrimary : colors.textSecondary}>{exerciseName(e, lang)}</Text>
             </Pressable>
           );
         })}
@@ -46,7 +46,7 @@ export function GlobalView() {
         <View style={{ gap: space[1] }}>
           {data.rows.map((r) => (
             <View key={r.userId} accessible accessibilityLabel={`${r.place}. ${r.username}, ${rankLabel(r, lang)}`}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], paddingVertical: space[2], paddingHorizontal: space[3], borderRadius: radius.md, backgroundColor: r.isMe ? '#6C5CFF2A' : colors.surface }}>
+              style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], paddingVertical: space[2], paddingHorizontal: space[3], borderRadius: radius.md, backgroundColor: r.isMe ? colors.primarySoft : colors.surface }}>
               <Text variant="h3" tabular style={{ width: 32, textAlign: 'center' }}>{MEDALS[r.place - 1] ?? r.place}</Text>
               <Avatar name={r.username} tier={r.tier} size={34} uri={r.avatarUrl} />
               <View style={{ flex: 1 }}>

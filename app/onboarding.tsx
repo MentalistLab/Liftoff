@@ -9,7 +9,7 @@ import { Calculating } from '../components/onboarding/Calculating';
 import { PlanPreview } from '../components/onboarding/PlanPreview';
 import { RankReveal } from '../components/onboarding/RankReveal';
 import { StrengthCheck } from '../components/onboarding/StrengthCheck';
-import { Button, OptionCard, ProgressBar, RankBadge, SegmentedControl, Stepper, Text } from '../components/ui';
+import { Button, Kristo, OptionCard, ProgressBar, SegmentedControl, Stepper, Text } from '../components/ui';
 import { inviteLink } from '../lib/invite';
 import { scheduleReminders } from '../lib/reminders';
 import { computeOnboardingRanks } from '../lib/onboardingRanks';
@@ -67,7 +67,7 @@ export default function Onboarding() {
     case 'welcome':
       body = (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: space[6], paddingTop: space[14] }}>
-          <RankBadge tier={7} division={3} size={130} lang={language} />
+          <Kristo pose="happy" size={150} />
           <Text variant="display" style={{ textAlign: 'center' }}>{t('onboarding.welcome.title')}</Text>
           <Text color={colors.textSecondary} style={{ textAlign: 'center' }}>{t('onboarding.welcome.sub')}</Text>
         </View>
@@ -144,7 +144,7 @@ export default function Onboarding() {
               return (
                 <Pressable key={d} accessibilityRole="checkbox" accessibilityState={{ checked: on }} accessibilityLabel={n} onPress={() => toggle(d)}
                   style={{ width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: on ? colors.primary : colors.border, backgroundColor: on ? colors.primary : colors.surface }}>
-                  <Text variant="h3">{n}</Text>
+                  <Text variant="h3" color={on ? colors.onPrimary : colors.text}>{n}</Text>
                 </Pressable>
               );
             })}
@@ -171,7 +171,7 @@ export default function Onboarding() {
     case 'notify':
       body = (
         <View style={{ flex: 1, justifyContent: 'center', gap: space[4], paddingTop: space[14] }}>
-          <Text variant="display" style={{ textAlign: 'center' }}>🔔</Text>
+          <View style={{ alignItems: 'center' }}><Kristo pose="focus" size={130} /></View>
           {title('notify')}{sub('notify')}
         </View>
       );
@@ -185,7 +185,7 @@ export default function Onboarding() {
     case 'invite':
       body = (
         <View style={{ flex: 1, justifyContent: 'center', gap: space[4], paddingTop: space[14] }}>
-          <Text variant="display" style={{ textAlign: 'center' }}>🤝</Text>
+          <View style={{ alignItems: 'center' }}><Kristo pose="cheer" size={130} /></View>
           {title('invite')}{sub('invite')}
         </View>
       );

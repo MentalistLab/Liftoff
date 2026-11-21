@@ -34,7 +34,7 @@ export function StrengthCheck() {
                 accessibilityState={{ checked: unknown }}
                 accessibilityLabel={`${name}: ${t('onboarding.strength.unknown')}`}
                 onPress={() => { Haptics.selectionAsync(); setLift(slug, unknown ? { ...DEFAULTS[slug] } : null); }}
-                style={{ paddingVertical: space[1], paddingHorizontal: space[3], borderRadius: radius.full, borderWidth: 1, borderColor: unknown ? colors.primary : colors.border, backgroundColor: unknown ? '#6C5CFF22' : 'transparent' }}
+                style={{ paddingVertical: space[1], paddingHorizontal: space[3], borderRadius: radius.full, borderWidth: 1, borderColor: unknown ? colors.primary : colors.border, backgroundColor: unknown ? colors.primarySoft : 'transparent' }}
               >
                 <Text variant="caption" color={unknown ? colors.text : colors.textSecondary}>{t('onboarding.strength.unknown')}</Text>
               </Pressable>

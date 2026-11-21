@@ -184,7 +184,7 @@ export default function ProfileScreen() {
             {lifts.map((s) => (
               <Pressable key={s} onPress={() => setLift(s)} accessibilityRole="button" accessibilityState={{ selected: s === activeLift }}
                 style={{ paddingHorizontal: space[3], height: 32, justifyContent: 'center', borderRadius: radius.full, backgroundColor: s === activeLift ? colors.primary : colors.surface2 }}>
-                <Text variant="caption">{exerciseName(exerciseBySlug(s), language, s)}</Text>
+                <Text variant="caption" color={s === activeLift ? colors.onPrimary : colors.text}>{exerciseName(exerciseBySlug(s), language, s)}</Text>
               </Pressable>
             ))}
           </ScrollView>
@@ -223,7 +223,7 @@ export default function ProfileScreen() {
                   <Pressable key={cc ?? 'none'} accessibilityRole="button" accessibilityState={{ selected: on }}
                     onPress={async () => { await updateProfile({ country: cc }); server.refetch(); qc.invalidateQueries({ queryKey: ['my-profile'] }); }}
                     style={{ paddingHorizontal: space[3], height: 34, justifyContent: 'center', borderRadius: radius.full, backgroundColor: on ? colors.primary : colors.surface2 }}>
-                    <Text variant="caption">{cc ? `${flag(cc)} ${cc}` : t('profile.noCountry')}</Text>
+                    <Text variant="caption" color={on ? colors.onPrimary : colors.text}>{cc ? `${flag(cc)} ${cc}` : t('profile.noCountry')}</Text>
                   </Pressable>
                 );
               })}

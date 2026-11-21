@@ -31,7 +31,7 @@ export function ExerciseFilterBar({ query, setQuery, muscle, setMuscle }: Return
     return (
       <Pressable key={label} onPress={() => setMuscle(m)} accessibilityRole="button" accessibilityState={{ selected: on }}
         style={{ paddingHorizontal: space[3], height: 32, justifyContent: 'center', borderRadius: radius.full, backgroundColor: on ? colors.primary : colors.surface2 }}>
-        <Text variant="caption" color={on ? colors.text : colors.textSecondary}>{label}</Text>
+        <Text variant="caption" color={on ? colors.onPrimary : colors.textSecondary}>{label}</Text>
       </Pressable>
     );
   };

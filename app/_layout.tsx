@@ -1,4 +1,5 @@
 import '../lib/i18n';
+import { BarlowSemiCondensed_700Bold, BarlowSemiCondensed_800ExtraBold } from '@expo-google-fonts/barlow-semi-condensed';
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, useFonts } from '@expo-google-fonts/inter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
@@ -22,7 +23,7 @@ Notifications.setNotificationHandler({
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 60_000, retry: 1 } } });
 
 export default function RootLayout() {
-  const [loaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
+  const [loaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, BarlowSemiCondensed_700Bold, BarlowSemiCondensed_800ExtraBold });
   useEffect(() => { if (loaded) SplashScreen.hideAsync(); }, [loaded]);
   useEffect(() => { syncPending().finally(runStartupChecks); }, []);
   // Zurück in der App (z. B. nach Training auf dem anderen Gerät) → neu abgleichen
