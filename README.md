@@ -236,3 +236,14 @@ App-Icon und Splash ändern: Farben/Formen in `scripts/generate-icons.js` anpass
 | Liga bleibt leer | Du kommst automatisch in eine Liga, sobald dein erstes Workout auf dem Server ausgewertet wurde (angemeldet + online). Die Sonntags-Auswertung braucht die Vault-Secrets aus 3.3. |
 | `npm install` meldet Peer-Dependency-Konflikte | `.npmrc` mit `legacy-peer-deps=true` liegt bei – einfach `npm install` erneut ausführen. |
 | iOS-Build: Bundle-ID schon vergeben | In `app.json` eine eigene Bundle-ID setzen (5.1). |
+
+---
+
+## 8. Web-App (iPad, iPhone, PC) – ohne App Store
+
+Die App läuft auch im Browser, mit Konto und allen Social-Funktionen: **https://maxi1233-ascend.expo.app**
+
+Auf dem iPad/iPhone in **Safari** öffnen → **Teilen** → **Zum Home-Bildschirm**. Dann startet Ascend mit eigenem Icon im Vollbild.
+Im Browser nicht verfügbar: Vibration, QR-Scanner, Teilen als Bild, Erinnerungen.
+
+Neue Version veröffentlichen: `npm run deploy:web` (braucht `eas login` und die `.env`).
