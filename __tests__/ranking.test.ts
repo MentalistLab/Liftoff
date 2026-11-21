@@ -167,3 +167,19 @@ describe('Perzentil und Gewichtsklassen', () => {
     expect(weightClass('female', 100)).toBe('84+ kg');
   });
 });
+
+describe('Übungskatalog', () => {
+  const { ALL_EXERCISES: all, MUSCLES: muscles } = require('../lib/standards.ts');
+  test('mindestens 80 Übungen, eindeutige Slugs', () => {
+    expect(all.length).toBeGreaterThanOrEqual(80);
+    expect(new Set(all.map((e: { slug: string }) => e.slug)).size).toBe(all.length);
+  });
+  test('jede Norm hat 5 aufsteigende Schwellen, jede Muskelgruppe ≥ 5 Übungen', () => {
+    for (const e of all) for (const g of ['male', 'female']) {
+      const t = e.standards[g];
+      expect(t).toHaveLength(5);
+      for (let i = 1; i < 5; i++) expect(t[i]).toBeGreaterThanOrEqual(t[i - 1]);
+    }
+    for (const m of muscles) expect(all.filter((e: { primaryMuscle: string }) => e.primaryMuscle === m).length).toBeGreaterThanOrEqual(5);
+  });
+});

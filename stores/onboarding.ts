@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import type { Goal } from '../lib/planner';
-import type { Experience, LiftInput, OnboardingRankResult } from '../lib/onboardingRanks';
+import type { Experience, Goal } from '../lib/planner';
+import type { LiftInput, OnboardingRankResult } from '../lib/onboardingRanks';
 import type { Gender } from '../lib/standards';
 
 export type Location = 'gym' | 'home_dumbbells' | 'bodyweight';
@@ -22,6 +22,8 @@ export interface OnboardingData {
 interface OnboardingState extends OnboardingData {
   result: OnboardingRankResult | null;
   completed: boolean;
+  /** Profil + erster Rang wurden auf den Server übertragen */
+  serverSynced: boolean;
   set: (patch: Partial<OnboardingData>) => void;
   setLift: (slug: string, lift: LiftInput | null) => void;
   setResult: (r: OnboardingRankResult) => void;
@@ -40,11 +42,12 @@ export const useOnboarding = create<OnboardingState>()(
       ...initial,
       result: null,
       completed: false,
+      serverSynced: false,
       set: (patch) => set(patch),
       setLift: (slug, lift) => set((s) => ({ lifts: { ...s.lifts, [slug]: lift } })),
       setResult: (result) => set({ result }),
       complete: () => set({ completed: true }),
-      reset: () => set({ ...initial, result: null, completed: false }),
+      reset: () => set({ ...initial, result: null, completed: false, serverSynced: false }),
     }),
     { name: 'ascend-onboarding', storage: createJSONStorage(() => AsyncStorage) },
   ),

@@ -1,6 +1,8 @@
 // Offline-Sync: abgeschlossene Workouts hochladen und serverseitig auswerten lassen.
 // Idempotent über client_id (unique) und finalized_at (409 = schon ausgewertet).
 import { supabase, supabaseConfigured } from './supabase';
+import { useOnboarding } from '../stores/onboarding';
+import { useSettings } from '../stores/settings';
 import { useWorkout, type FinishedWorkout } from '../stores/workout';
 
 function localDate(d = new Date()): string {
@@ -54,7 +56,34 @@ export async function syncWorkout(w: FinishedWorkout): Promise<boolean> {
 
 /** Beim App-Start: alles Ausstehende nachreichen. Fehler bleiben still – nächster Versuch beim nächsten Start. */
 export async function syncPending(): Promise<void> {
+  try { await syncOnboarding(); } catch { /* nächster Start */ }
   for (const w of useWorkout.getState().history.filter((h) => !h.synced)) {
     try { await syncWorkout(w); } catch { return; }
   }
+}
+
+/**
+ * Onboarding-Daten einmalig ins Server-Profil übernehmen und den ersten Rang speichern.
+ * Läuft nach Registrierung/Anmeldung und beim App-Start; überschreibt nichts, was schon auf dem Server steht.
+ */
+export async function syncOnboarding(): Promise<void> {
+  if (!supabaseConfigured) return;
+  const { data: { session } } = await supabase.auth.getSession();
+  const ob = useOnboarding.getState();
+  if (!session || !ob.result || ob.serverSynced) return;
+  const uid = session.user.id;
+  const { data: p, error } = await supabase.from('profiles').select('bodyweight_kg').eq('id', uid).single();
+  if (error) return;
+  if (p.bodyweight_kg == null) {
+    const { language, unitSystem } = useSettings.getState();
+    const up = await supabase.from('profiles').update({
+      gender: ob.gender ?? 'none', birth_year: new Date().getFullYear() - ob.age, bodyweight_kg: ob.bodyweightKg,
+      height_cm: ob.heightCm, experience: ob.experience, goal: ob.goal, location: ob.location,
+      training_days: ob.trainingDays, language, unit_system: unitSystem,
+    }).eq('id', uid);
+    if (up.error) return;
+  }
+  const r = await supabase.functions.invoke('onboarding-ranks', { body: { lifts: ob.lifts } });
+  const status = (r.error as { context?: { status?: number } } | null)?.context?.status;
+  if (!r.error || status === 409) useOnboarding.setState({ serverSynced: true });
 }

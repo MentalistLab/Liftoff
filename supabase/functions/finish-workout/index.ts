@@ -61,7 +61,7 @@ Deno.serve(handler(async (req) => {
 
     const sets = must(await db.from('workout_sets').select(
       'id, exercise_id, set_index, weight_kg, reps, duration_s, rpe, is_warmup, completed, exercises(id, slug, name_de, name_en, primary_muscle, secondary_muscles, ranking_type, standards, is_ranked, is_bodyweight)',
-    ).eq('workout_id', workout.id), 'sets') as SetRow[];
+    ).eq('workout_id', workout.id), 'sets') as unknown as SetRow[];
 
     const done = sets
       .map((s) => ({ ...s, weight_kg: num(s.weight_kg), reps: num(s.reps), duration_s: num(s.duration_s), rpe: num(s.rpe) }))
@@ -147,7 +147,7 @@ Deno.serve(handler(async (req) => {
     if (rankUpserts.length) must(await db.from('exercise_ranks').upsert(rankUpserts), 'rank upsert');
 
     // 4) Muskel- und Gesamtrang aus allen Übungsrängen neu berechnen
-    const allRanks = must(await db.from('exercise_ranks').select('score, exercises(primary_muscle, secondary_muscles)').eq('user_id', user.id), 'all ranks') as
+    const allRanks = must(await db.from('exercise_ranks').select('score, exercises(primary_muscle, secondary_muscles)').eq('user_id', user.id), 'all ranks') as unknown as
       { score: number; exercises: { primary_muscle: Muscle; secondary_muscles: Muscle[] } }[];
     const contrib = new Map<Muscle, MuscleContribution[]>();
     for (const r of allRanks) {

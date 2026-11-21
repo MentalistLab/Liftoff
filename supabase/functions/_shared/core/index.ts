@@ -6,3 +6,5 @@ export * from './badges.ts';
 export * from './league.ts';
 export * from './progression.ts';
 export * from './planner.ts';
+export * from './onboarding.ts';
+export * from './catalog.ts';

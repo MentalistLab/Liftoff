@@ -53,6 +53,13 @@ export const CORE_EXERCISES: ExerciseDef[] = [
 
 export const ONBOARDING_LIFTS = ['bench_press', 'back_squat', 'deadlift', 'pull_up', 'push_up'];
 
+// Register: Kernübungen sind immer da; catalog.ts registriert den erweiterten Katalog (App + Seed).
+const REGISTRY = new Map<string, ExerciseDef>(CORE_EXERCISES.map((e) => [e.slug, e]));
+
+export function registerExercises(list: ExerciseDef[]): void {
+  for (const e of list) REGISTRY.set(e.slug, e);
+}
+
 export function exerciseBySlug(slug: string): ExerciseDef | undefined {
-  return CORE_EXERCISES.find((e) => e.slug === slug);
+  return REGISTRY.get(slug);
 }

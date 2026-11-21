@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Modal, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CORE_EXERCISES, MUSCLES, type ExerciseDef, type Muscle } from '../../lib/standards';
+import { ALL_EXERCISES, MUSCLES, type ExerciseDef, type Muscle } from '../../lib/standards';
 import { useSettings } from '../../stores/settings';
 import { colors, fonts, radius, space } from '../../theme';
 import { Text } from '../ui';
@@ -13,7 +13,7 @@ export function useExerciseFilter() {
   const [muscle, setMuscle] = useState<Muscle | null>(null);
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return CORE_EXERCISES.filter((e) =>
+    return ALL_EXERCISES.filter((e) =>
       (!muscle || e.primaryMuscle === muscle || e.secondaryMuscles.includes(muscle)) &&
       (!q || e.nameDe.toLowerCase().includes(q) || e.nameEn.toLowerCase().includes(q)));
   }, [query, muscle]);

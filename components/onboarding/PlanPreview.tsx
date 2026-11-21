@@ -2,14 +2,14 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { generatePlan, type GeneratedPlan } from '../../lib/planner';
-import { CORE_EXERCISES, exerciseBySlug } from '../../lib/standards';
+import { ALL_EXERCISES, exerciseBySlug } from '../../lib/standards';
 import type { OnboardingData } from '../../stores/onboarding';
 import { useSettings } from '../../stores/settings';
 import { colors, space } from '../../theme';
 import { Card, Text } from '../ui';
 
 export function buildPlan(d: OnboardingData, scores?: Partial<Record<string, number>>): GeneratedPlan {
-  const allowed = CORE_EXERCISES.filter((e) =>
+  const allowed = ALL_EXERCISES.filter((e) =>
     d.location === 'bodyweight' ? e.equipment === 'bodyweight' : d.location === 'home_dumbbells' ? !['machine', 'cable'].includes(e.equipment) : true);
   return generatePlan({
     goal: d.goal ?? 'fitness', experience: d.experience ?? 'beginner', days: d.trainingDays,

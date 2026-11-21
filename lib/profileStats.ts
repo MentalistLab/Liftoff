@@ -1,7 +1,7 @@
 // Statistiken, Abzeichen-Fortschritt und Verlaufsdaten aus der lokalen Workout-Historie.
 import { BADGES, type BadgeStats } from '../supabase/functions/_shared/core/badges.ts';
 import { epley1RM } from '../supabase/functions/_shared/core/ranking.ts';
-import { exerciseBySlug } from '../supabase/functions/_shared/core/standards.ts';
+import { exerciseBySlug } from './standards.ts';
 import { isSetDone, type WorkoutExercise, type WorkoutSummary } from './workoutSummary.ts';
 
 export interface HistoryWorkout { startedAt: number; endedAt: number; exercises: WorkoutExercise[]; summary: WorkoutSummary }

@@ -1,7 +1,7 @@
 // Lokale Auswertung eines Workouts – sofort, auch offline.
 // Der Server (finish-workout) rechnet nach dem Sync verbindlich nach; die Logik ist dieselbe.
 import { bestScore, epley1RM, scoreToRank, type ScoreContext } from '../supabase/functions/_shared/core/ranking.ts';
-import { exerciseBySlug } from '../supabase/functions/_shared/core/standards.ts';
+import { exerciseBySlug } from './standards.ts';
 import { workoutXp, type WorkoutXp } from '../supabase/functions/_shared/core/xp.ts';
 
 export interface SetEntry { id: string; weightKg: number | null; reps: number | null; durationS: number | null; done: boolean }

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { useLeaderboard } from '../../hooks/useSocial';
 import { rankLabel, weightClass } from '../../lib/ranking';
-import { CORE_EXERCISES } from '../../lib/standards';
+import { ALL_EXERCISES } from '../../lib/standards';
 import { useOnboarding } from '../../stores/onboarding';
 import { useSettings } from '../../stores/settings';
 import { colors, radius, space } from '../../theme';
@@ -26,7 +26,7 @@ export function GlobalView() {
     <View style={{ gap: space[3] }}>
       {data?.demo ? <Text variant="caption" color={colors.warning}>{t('social.demo')}</Text> : null}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: space[2] }}>
-        {CORE_EXERCISES.map((e) => {
+        {ALL_EXERCISES.map((e) => {
           const on = e.slug === slug;
           return (
             <Pressable key={e.slug} onPress={() => setSlug(e.slug)} accessibilityRole="button" accessibilityState={{ selected: on }}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TextInput, View, type TextInputProps } from 'react-native';
 import { supabase, supabaseConfigured } from '../../lib/supabase';
-import { useOnboarding } from '../../stores/onboarding';
+import { syncOnboarding } from '../../lib/sync';
 import { useSettings } from '../../stores/settings';
 import { colors, fonts, radius, space } from '../../theme';
 import { Button, Text } from '../ui';
@@ -27,9 +27,7 @@ function Field(props: TextInputProps & { label: string }) {
 
 export function AccountStep({ onDone, initialMode = 'signup' }: { onDone: () => void; initialMode?: 'signup' | 'signin' }) {
   const { t } = useTranslation();
-  const ob = useOnboarding();
   const language = useSettings((s) => s.language);
-  const unitSystem = useSettings((s) => s.unitSystem);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,6 +42,7 @@ export function AccountStep({ onDone, initialMode = 'signup' }: { onDone: () => 
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setMsg(t('onboarding.account.wrong')); return; }
+      await syncOnboarding();
       onDone();
     } finally { setBusy(false); }
   }
@@ -56,11 +55,7 @@ export function AccountStep({ onDone, initialMode = 'signup' }: { onDone: () => 
       const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username, language } } });
       if (error) { setMsg(error.message); return; }
       if (!data.session) { setMsg(t('onboarding.account.check')); return; }
-      await supabase.from('profiles').update({
-        gender: ob.gender ?? 'none', birth_year: new Date().getFullYear() - ob.age, bodyweight_kg: ob.bodyweightKg,
-        height_cm: ob.heightCm, experience: ob.experience, goal: ob.goal, location: ob.location,
-        training_days: ob.trainingDays, language, unit_system: unitSystem,
-      }).eq('id', data.session.user.id);
+      await syncOnboarding();
       onDone();
     } finally { setBusy(false); }
   }
